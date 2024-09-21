@@ -1,4 +1,44 @@
-use crate::Result;
+use crate::{Error, Result};
+use rand::Rng;
+
+fn generate_uniform_hash(n: usize, max_range: usize) -> Result<Vec<i32>> {
+    if n > max_range {
+        return Err(Error::MaxNotPossible("N > max, not possible".to_string()));
+    }
+
+    let mut rng = rand::thread_rng();
+    let mut unique_numbers_unsorted = Vec::new();
+
+    // Generate unique random numbers
+    while unique_numbers_unsorted.len() < n {
+        let v = rng.gen_range(0..max_range as i32);
+        unique_numbers_unsorted.push(v);
+    }
+
+    // Collect and sort the unique numbers
+    let mut unique_numbers: Vec<i32> = unique_numbers_unsorted.into_iter().collect();
+    unique_numbers.sort();
+
+    Ok(unique_numbers)
+}
+
+fn generate_uniform_bitmap(n: usize, max_range: usize) -> Result<Vec<i32>> {
+    if n > max_range {
+        return Err(Error::MaxNotPossible("N > max, not possible".to_string()));
+    }
+
+    let mut rng = rand::thread_rng();
+    let mut unique_numbers: Vec<i32> = Vec::new();
+
+    while unique_numbers.len() < n {
+        let v = rng.gen_range(0..max_range as i32);
+        if !unique_numbers.contains(&v) {
+            unique_numbers.push(v);
+        }
+    }
+
+    Ok(unique_numbers)
+}
 
 // Finds the numbers not present in a set and generates its complement within a range.
 fn negate(set: Vec<i32>, max_range: usize) -> Vec<i32> {
@@ -65,5 +105,85 @@ mod tests {
         let result = negate(x, max);
         let expected = vec![0, 1, 2, 4, 5, 6, 8, 9, 11];
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_generate_uniform_bitmap_success() {
+        let result = generate_uniform_bitmap(5, 10);
+        assert!(result.is_ok());
+        let bitmap = result.unwrap();
+        assert_eq!(bitmap.len(), 5);
+        assert!(bitmap.iter().all(|&num| num < 10));
+    }
+
+    #[test]
+    fn test_generate_uniform_bitmap_more_than_max() {
+        let result = generate_uniform_bitmap(10, 5);
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "MaxNotPossible(\"N > max, not possible\")"
+        );
+    }
+
+    #[test]
+    fn test_generate_uniform_bitmap_exactly_max() {
+        let result = generate_uniform_bitmap(10, 10);
+        assert!(result.is_ok());
+        let bitmap = result.unwrap();
+        assert_eq!(bitmap.len(), 10);
+        assert!(bitmap.iter().all(|&num| num < 10));
+    }
+
+    #[test]
+    fn test_generate_uniform_bitmap_empty() {
+        let result = generate_uniform_bitmap(0, 10);
+        assert!(result.is_ok());
+        let bitmap = result.unwrap();
+        assert!(bitmap.is_empty()); // Should return an empty vector
+    }
+
+    #[test]
+    fn test_generate_uniform_hash_success() {
+        let result = generate_uniform_hash(5, 10);
+        assert!(result.is_ok());
+        let hash = result.unwrap();
+        assert_eq!(hash.len(), 5);
+        assert!(hash.iter().all(|&num| num >= 0 && num < 10));
+        assert!(is_sorted(&hash));
+    }
+
+    #[test]
+    fn test_generate_uniform_hash_more_than_max() {
+        let result = generate_uniform_hash(10, 5);
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "MaxNotPossible(\"N > max, not possible\")"
+        );
+    }
+
+    #[test]
+    fn test_generate_uniform_hash_exactly_max() {
+        let result = generate_uniform_hash(7, 10);
+        assert!(result.is_ok());
+        let hash = result.unwrap();
+        assert_eq!(hash.len(), 7);
+        assert!(hash.iter().all(|&num| num >= 0 && num < 10));
+        assert!(is_sorted(&hash));
+    }
+
+    #[test]
+    fn test_generate_uniform_hash_empty() {
+        let result = generate_uniform_hash(0, 10);
+        assert!(result.is_ok());
+        let hash = result.unwrap();
+        assert!(hash.is_empty());
+    }
+
+    fn is_sorted(vec: &[i32]) -> bool {
+        vec.windows(2).all(|w| w[0] <= w[1])
     }
 }
