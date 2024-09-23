@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::Result;
 use rand::Rng;
 
 fn generate_set() -> Result<Vec<i32>> {

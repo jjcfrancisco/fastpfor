@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+bytebuffer = "2.3.0"
 derive_more = "0.99.18"
 rand = "0.8.5"

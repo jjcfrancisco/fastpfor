@@ -4,8 +4,8 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, From)]
 pub enum Error {
-    // -- Generators
-    MaxNotPossible(String),
+    // -- FastPFor
+    Uncompress(String),
 
     // -- Externals
 }
@@ -21,3 +21,4 @@ impl core::fmt::Display for Error {
 impl std::error::Error for Error {}
 
 // endregion: --- Error Boilerplate
+

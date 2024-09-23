@@ -3,6 +3,15 @@
 version = 3
 
 [[package]]
+name = "bytebuffer"
+version = "2.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2618ff1f07e000264e355904bff5c0527091fcbad883ff7f71383c5428915f4b"
+dependencies = [
+ "byteorder",
+]
+
+[[package]]
 name = "byteorder"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -37,6 +46,7 @@ dependencies = [
 name = "fastpfor"
 version = "0.1.0"
 dependencies = [
+ "bytebuffer",
  "derive_more",
  "rand",
 ]
