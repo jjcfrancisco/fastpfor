@@ -163,15 +163,15 @@ mod tests {
     #[test]
     fn test_new() {
         let fastpfor = FastPFOR::new();
-        // assert_eq!(fastpfor.data_to_be_packed.len(), 32);
-        // assert_eq!(
-        //     fastpfor.byte_container.len(),
-        //     (3 * DEFAULT_PAGE_SIZE / DEFAULT_BLOCK_SIZE + DEFAULT_PAGE_SIZE)
-        //         .try_into()
-        //         .unwrap()
-        // );
-        // assert_eq!(fastpfor.page_size, DEFAULT_PAGE_SIZE);
-        // assert_eq!(fastpfor.data_pointers.len(), 33);
-        // assert_eq!(fastpfor.freqs.len(), 33);
+        assert_eq!(fastpfor.data_to_be_packed.len(), 32);
+        assert_eq!(
+            fastpfor.byte_container.len(),
+            (3 * DEFAULT_PAGE_SIZE / DEFAULT_BLOCK_SIZE + DEFAULT_PAGE_SIZE)
+                .try_into()
+                .unwrap()
+        );
+        assert_eq!(fastpfor.page_size, DEFAULT_PAGE_SIZE);
+        assert_eq!(fastpfor.data_pointers.len(), 33);
+        assert_eq!(fastpfor.freqs.len(), 33);
     }
 }
