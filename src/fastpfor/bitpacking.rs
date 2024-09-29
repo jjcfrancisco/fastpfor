@@ -7,7 +7,7 @@ pub fn fast_unpack(
 ) {
     match bit {
         0 => fast_unpack0(input, inpos, output, outpos),
-        // 1 => fast_unpack1(input, inpos, output, outpos),
+        1 => fast_unpack1(input, inpos, output, outpos),
         // 2 => fast_unpack2(input, inpos, output, outpos),
         // 3 => fast_unpack3(input, inpos, output, outpos),
         // 4 => fast_unpack4(input, inpos, output, outpos),
@@ -49,41 +49,41 @@ fn fast_unpack0(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     }
 }
 
-// fn fast_unpack1(input: &mut [i32], inpos: i32, output: &mut [i32], outpos: i32) {
-//     output[0 + outpos as usize] = (input[0 + inpos as usize] >> 0) & 1;
-//     output[1 + outpos as usize] = (input[0 + inpos as usize] >> 1) & 1;
-//     output[2 + outpos as usize] = (input[0 + inpos as usize] >> 2) & 1;
-//     output[3 + outpos as usize] = (input[0 + inpos as usize] >> 3) & 1;
-//     output[4 + outpos as usize] = (input[0 + inpos as usize] >> 4) & 1;
-//     output[5 + outpos as usize] = (input[0 + inpos as usize] >> 5) & 1;
-//     output[6 + outpos as usize] = (input[0 + inpos as usize] >> 6) & 1;
-//     output[7 + outpos as usize] = (input[0 + inpos as usize] >> 7) & 1;
-//     output[8 + outpos as usize] = (input[0 + inpos as usize] >> 8) & 1;
-//     output[9 + outpos as usize] = (input[0 + inpos as usize] >> 9) & 1;
-//     output[10 + outpos as usize] = (input[0 + inpos as usize] >> 10) & 1;
-//     output[11 + outpos as usize] = (input[0 + inpos as usize] >> 11) & 1;
-//     output[12 + outpos as usize] = (input[0 + inpos as usize] >> 12) & 1;
-//     output[13 + outpos as usize] = (input[0 + inpos as usize] >> 13) & 1;
-//     output[14 + outpos as usize] = (input[0 + inpos as usize] >> 14) & 1;
-//     output[15 + outpos as usize] = (input[0 + inpos as usize] >> 15) & 1;
-//     output[16 + outpos as usize] = (input[0 + inpos as usize] >> 16) & 1;
-//     output[17 + outpos as usize] = (input[0 + inpos as usize] >> 17) & 1;
-//     output[18 + outpos as usize] = (input[0 + inpos as usize] >> 18) & 1;
-//     output[19 + outpos as usize] = (input[0 + inpos as usize] >> 19) & 1;
-//     output[20 + outpos as usize] = (input[0 + inpos as usize] >> 20) & 1;
-//     output[21 + outpos as usize] = (input[0 + inpos as usize] >> 21) & 1;
-//     output[22 + outpos as usize] = (input[0 + inpos as usize] >> 22) & 1;
-//     output[23 + outpos as usize] = (input[0 + inpos as usize] >> 23) & 1;
-//     output[24 + outpos as usize] = (input[0 + inpos as usize] >> 24) & 1;
-//     output[25 + outpos as usize] = (input[0 + inpos as usize] >> 25) & 1;
-//     output[26 + outpos as usize] = (input[0 + inpos as usize] >> 26) & 1;
-//     output[27 + outpos as usize] = (input[0 + inpos as usize] >> 27) & 1;
-//     output[28 + outpos as usize] = (input[0 + inpos as usize] >> 28) & 1;
-//     output[29 + outpos as usize] = (input[0 + inpos as usize] >> 29) & 1;
-//     output[30 + outpos as usize] = (input[0 + inpos as usize] >> 30) & 1;
-//     output[31 + outpos as usize] = input[0 + inpos as usize] >> 31;
-// }
-//
+fn fast_unpack1(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+    output[0 + outpos as usize] = (input[0 + inpos as usize] >> 0) & 1;
+    output[1 + outpos as usize] = (input[0 + inpos as usize] >> 1) & 1;
+    output[2 + outpos as usize] = (input[0 + inpos as usize] >> 2) & 1;
+    output[3 + outpos as usize] = (input[0 + inpos as usize] >> 3) & 1;
+    output[4 + outpos as usize] = (input[0 + inpos as usize] >> 4) & 1;
+    output[5 + outpos as usize] = (input[0 + inpos as usize] >> 5) & 1;
+    output[6 + outpos as usize] = (input[0 + inpos as usize] >> 6) & 1;
+    output[7 + outpos as usize] = (input[0 + inpos as usize] >> 7) & 1;
+    output[8 + outpos as usize] = (input[0 + inpos as usize] >> 8) & 1;
+    output[9 + outpos as usize] = (input[0 + inpos as usize] >> 9) & 1;
+    output[10 + outpos as usize] = (input[0 + inpos as usize] >> 10) & 1;
+    output[11 + outpos as usize] = (input[0 + inpos as usize] >> 11) & 1;
+    output[12 + outpos as usize] = (input[0 + inpos as usize] >> 12) & 1;
+    output[13 + outpos as usize] = (input[0 + inpos as usize] >> 13) & 1;
+    output[14 + outpos as usize] = (input[0 + inpos as usize] >> 14) & 1;
+    output[15 + outpos as usize] = (input[0 + inpos as usize] >> 15) & 1;
+    output[16 + outpos as usize] = (input[0 + inpos as usize] >> 16) & 1;
+    output[17 + outpos as usize] = (input[0 + inpos as usize] >> 17) & 1;
+    output[18 + outpos as usize] = (input[0 + inpos as usize] >> 18) & 1;
+    output[19 + outpos as usize] = (input[0 + inpos as usize] >> 19) & 1;
+    output[20 + outpos as usize] = (input[0 + inpos as usize] >> 20) & 1;
+    output[21 + outpos as usize] = (input[0 + inpos as usize] >> 21) & 1;
+    output[22 + outpos as usize] = (input[0 + inpos as usize] >> 22) & 1;
+    output[23 + outpos as usize] = (input[0 + inpos as usize] >> 23) & 1;
+    output[24 + outpos as usize] = (input[0 + inpos as usize] >> 24) & 1;
+    output[25 + outpos as usize] = (input[0 + inpos as usize] >> 25) & 1;
+    output[26 + outpos as usize] = (input[0 + inpos as usize] >> 26) & 1;
+    output[27 + outpos as usize] = (input[0 + inpos as usize] >> 27) & 1;
+    output[28 + outpos as usize] = (input[0 + inpos as usize] >> 28) & 1;
+    output[29 + outpos as usize] = (input[0 + inpos as usize] >> 29) & 1;
+    output[30 + outpos as usize] = (input[0 + inpos as usize] >> 30) & 1;
+    output[31 + outpos as usize] = input[0 + inpos as usize] >> 31;
+}
+
 // fn fast_unpack2(input: &mut [i32], inpos: i32, output: &mut [i32], outpos: i32) {
 //     output[0 + outpos as usize] = (input[0 + inpos as usize] >> 0) & 3;
 //     output[1 + outpos as usize] = (input[0 + inpos as usize] >> 2) & 3;
