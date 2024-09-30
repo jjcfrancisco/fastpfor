@@ -71,7 +71,7 @@ impl FastPFOR {
         mut inpos: Cursor,
         output: &mut [i32],
         mut outpos: Cursor,
-        size: usize,
+        size: isize,
     ) -> &mut Self {
         let initpos = inpos.get();
         let wheremeta = input[initpos as usize];
@@ -100,10 +100,10 @@ impl FastPFOR {
                     // bitpacking.FastUnpack(in, int(inexcept), this.dataToBePacked[k], int(j), int(k))
                     bitpacking::fast_unpack(
                         input,
-                        inexcept as usize,
+                        inexcept as isize,
                         &mut self.data_to_be_packed[k],
-                        j as usize,
-                        k as usize,
+                        j as isize,
+                        k as isize,
                     );
                     inexcept += k as i32;
                 }
@@ -115,7 +115,7 @@ impl FastPFOR {
         let mut tmpinpos = inpos.get() as u32;
 
         let mut run = 0;
-        let run_end = size / DEFAULT_BLOCK_SIZE as usize;
+        let run_end = size / DEFAULT_BLOCK_SIZE as isize;
 
         while run < run_end {
             let bestb = helpers::grap_byte(my_byte_array, mybp) as u32;
