@@ -4,3 +4,4 @@ In development, not ready for use. A port of Go library [FastPfor](https://githu
 
 # To do:
 - [ ] Add tests from other projects
+- [ ] Change to [thiserror](https://crates.io/crates/thiserror)
