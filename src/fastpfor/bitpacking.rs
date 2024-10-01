@@ -7,7 +7,7 @@ pub fn fast_unpack(input: &mut [i32], inpos: isize, output: &mut [i32], outpos: 
         4 => fast_unpack4(input, inpos, output, outpos),
         5 => fast_unpack5(input, inpos, output, outpos),
         6 => fast_unpack6(input, inpos, output, outpos),
-        // 7 => fast_unpack7(input, inpos, output, outpos),
+        7 => fast_unpack7(input, inpos, output, outpos),
         // 8 => fast_unpack8(input, inpos, output, outpos),
         // 9 => fast_unpack9(input, inpos, output, outpos),
         // 10 => fast_unpack10(input, inpos, output, outpos),
@@ -263,46 +263,47 @@ fn fast_unpack6(input: &mut [i32], inpos: isize, output: &mut [i32], outpos: isi
     output[31 + outpos as usize] = ((input[5 + inpos as usize]) as u32 >> 26) as i32;
 }
 
-// fn fast_unpack7(input: &mut [i32], inpos: i32, output: &mut [i32], outpos: i32) {
-//     output[0 + outpos as usize] = (input[0 + inpos as usize] >> 0) & 127;
-//     output[1 + outpos as usize] = (input[0 + inpos as usize] >> 7) & 127;
-//     output[2 + outpos as usize] = (input[0 + inpos as usize] >> 14) & 127;
-//     output[3 + outpos as usize] = (input[0 + inpos as usize] >> 21) & 127;
-//     output[4 + outpos as usize] = (input[0 + inpos as usize] >> 28) & 127;
-//     output[5 + outpos as usize] =
-//         input[1 + inpos as usize] >> 0 | (input[2 + inpos as usize] & 3) << (7 - 2);
-//     output[6 + outpos as usize] = (input[2 + inpos as usize] >> 2) & 127;
-//     output[7 + outpos as usize] = (input[2 + inpos as usize] >> 9) & 127;
-//     output[8 + outpos as usize] = (input[2 + inpos as usize] >> 16) & 127;
-//     output[9 + outpos as usize] = (input[2 + inpos as usize] >> 23) & 127;
-//     output[10 + outpos as usize] = (input[2 + inpos as usize] >> 30) & 127;
-//     output[11 + outpos as usize] =
-//         input[3 + inpos as usize] >> 0 | (input[4 + inpos as usize] & 3) << (7 - 2);
-//     output[12 + outpos as usize] = (input[4 + inpos as usize] >> 2) & 127;
-//     output[13 + outpos as usize] = (input[4 + inpos as usize] >> 9) & 127;
-//     output[14 + outpos as usize] = (input[4 + inpos as usize] >> 16) & 127;
-//     output[15 + outpos as usize] = (input[4 + inpos as usize] >> 23) & 127;
-//     output[16 + outpos as usize] = (input[4 + inpos as usize] >> 30) & 127;
-//     output[17 + outpos as usize] =
-//         input[5 + inpos as usize] >> 0 | (input[6 + inpos as usize] & 3) << (7 - 2);
-//     output[18 + outpos as usize] = (input[6 + inpos as usize] >> 2) & 127;
-//     output[19 + outpos as usize] = (input[6 + inpos as usize] >> 9) & 127;
-//     output[20 + outpos as usize] = (input[6 + inpos as usize] >> 16) & 127;
-//     output[21 + outpos as usize] = (input[6 + inpos as usize] >> 23) & 127;
-//     output[22 + outpos as usize] = (input[6 + inpos as usize] >> 30) & 127;
-//     output[23 + outpos as usize] =
-//         input[7 + inpos as usize] >> 0 | (input[8 + inpos as usize] & 3) << (7 - 2);
-//     output[24 + outpos as usize] = (input[8 + inpos as usize] >> 2) & 127;
-//     output[25 + outpos as usize] = (input[8 + inpos as usize] >> 9) & 127;
-//     output[26 + outpos as usize] = (input[8 + inpos as usize] >> 16) & 127;
-//     output[27 + outpos as usize] = (input[8 + inpos as usize] >> 23) & 127;
-//     output[28 + outpos as usize] = (input[8 + inpos as usize] >> 30) & 127;
-//     output[29 + outpos as usize] =
-//         input[9 + inpos as usize] >> 0 | (input[10 + inpos as usize] & 3) << (7 - 2);
-//     output[30 + outpos as usize] = (input[10 + inpos as usize] >> 2) & 127;
-//     output[31 + outpos as usize] = input[10 + inpos as usize] >> 9;
-// }
-//
+fn fast_unpack7(input: &mut [i32], inpos: isize, output: &mut [i32], outpos: isize) {
+    output[0 + outpos as usize] = ((input[0 + inpos as usize]) as u32 >> 0) as i32 & 127;
+    output[1 + outpos as usize] = ((input[0 + inpos as usize]) as u32 >> 7) as i32 & 127;
+    output[2 + outpos as usize] = ((input[0 + inpos as usize]) as u32 >> 14) as i32 & 127;
+    output[3 + outpos as usize] = ((input[0 + inpos as usize]) as u32 >> 21) as i32 & 127;
+    output[4 + outpos as usize] = ((input[0 + inpos as usize]) as u32 >> 28) as i32
+        | ((input[1 + inpos as usize] & 7) << (7 - 3));
+    output[5 + outpos as usize] = ((input[1 + inpos as usize]) as u32 >> 3) as i32 & 127;
+    output[6 + outpos as usize] = ((input[1 + inpos as usize]) as u32 >> 10) as i32 & 127;
+    output[7 + outpos as usize] = ((input[1 + inpos as usize]) as u32 >> 17) as i32 & 127;
+    output[8 + outpos as usize] = ((input[1 + inpos as usize]) as u32 >> 24) as i32 & 127;
+    output[9 + outpos as usize] = ((input[1 + inpos as usize]) as u32 >> 31) as i32
+        | ((input[2 + inpos as usize] & 63) << (7 - 6));
+    output[10 + outpos as usize] = ((input[2 + inpos as usize]) as u32 >> 6) as i32 & 127;
+    output[11 + outpos as usize] = ((input[2 + inpos as usize]) as u32 >> 13) as i32 & 127;
+    output[12 + outpos as usize] = ((input[2 + inpos as usize]) as u32 >> 20) as i32 & 127;
+    output[13 + outpos as usize] = ((input[2 + inpos as usize]) as u32 >> 27) as i32
+        | ((input[3 + inpos as usize] & 3) << (7 - 2));
+    output[14 + outpos as usize] = ((input[3 + inpos as usize]) as u32 >> 2) as i32 & 127;
+    output[15 + outpos as usize] = ((input[3 + inpos as usize]) as u32 >> 9) as i32 & 127;
+    output[16 + outpos as usize] = ((input[3 + inpos as usize]) as u32 >> 16) as i32 & 127;
+    output[17 + outpos as usize] = ((input[3 + inpos as usize]) as u32 >> 23) as i32 & 127;
+    output[18 + outpos as usize] = ((input[3 + inpos as usize]) as u32 >> 30) as i32
+        | ((input[4 + inpos as usize] & 31) << (7 - 5));
+    output[19 + outpos as usize] = ((input[4 + inpos as usize]) as u32 >> 5) as i32 & 127;
+    output[20 + outpos as usize] = ((input[4 + inpos as usize]) as u32 >> 12) as i32 & 127;
+    output[21 + outpos as usize] = ((input[4 + inpos as usize]) as u32 >> 19) as i32 & 127;
+    output[22 + outpos as usize] = ((input[4 + inpos as usize]) as u32 >> 26) as i32
+        | ((input[5 + inpos as usize] & 1) << (7 - 1));
+    output[23 + outpos as usize] = ((input[5 + inpos as usize]) as u32 >> 1) as i32 & 127;
+    output[24 + outpos as usize] = ((input[5 + inpos as usize]) as u32 >> 8) as i32 & 127;
+    output[25 + outpos as usize] = ((input[5 + inpos as usize]) as u32 >> 15) as i32 & 127;
+    output[26 + outpos as usize] = ((input[5 + inpos as usize]) as u32 >> 22) as i32 & 127;
+    output[27 + outpos as usize] = ((input[5 + inpos as usize]) as u32 >> 29) as i32
+        | ((input[6 + inpos as usize] & 15) << (7 - 4));
+    output[28 + outpos as usize] = ((input[6 + inpos as usize]) as u32 >> 4) as i32 & 127;
+    output[29 + outpos as usize] = ((input[6 + inpos as usize]) as u32 >> 11) as i32 & 127;
+    output[30 + outpos as usize] = ((input[6 + inpos as usize]) as u32 >> 18) as i32 & 127;
+    output[31 + outpos as usize] = ((input[6 + inpos as usize]) as u32 >> 25) as i32;
+}
+
 // fn fast_unpack8(input: &mut [i32], inpos: i32, output: &mut [i32], outpos: i32) {
 //     output[0 + outpos as usize] = (input[0 + inpos as usize] >> 0) & 255;
 //     output[1 + outpos as usize] = (input[0 + inpos as usize] >> 8) & 255;
