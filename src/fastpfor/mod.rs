@@ -8,10 +8,13 @@ use bytebuffer::ByteBuffer;
 use cursor::Cursor;
 
 const DEFAULT_BLOCK_SIZE: i32 = 128;
+#[allow(dead_code)]
 const OVERHEAD_OF_EACH_EXCEPT: i32 = 8;
+#[allow(dead_code)]
 const DEFAULT_PAGE_SIZE: i32 = 65536;
 const ZERO_DATA_POINTERS: [i32; 32] = [0; 32];
 
+#[allow(dead_code)]
 struct FastPFOR {
     data_to_be_packed: Vec<Vec<i32>>,
     byte_container: ByteBuffer,
@@ -21,7 +24,7 @@ struct FastPFOR {
 }
 
 impl FastPFOR {
-    fn new() -> FastPFOR {
+    pub fn new() -> FastPFOR {
         let mut data_to_be_packed = Vec::new();
         for i in 1..33 {
             data_to_be_packed.push(vec![i; DEFAULT_PAGE_SIZE as usize / 32 * 4]);
@@ -40,37 +43,43 @@ impl FastPFOR {
         }
     }
 
+    pub fn compress() {}
+
     pub fn uncompress(
         &mut self,
         input: &mut [i32],
-        inpos: cursor::Cursor,
+        inpos: &mut cursor::Cursor,
         inlength: i32,
         output: &mut [i32],
-        outpos: cursor::Cursor,
+        outpos: &mut cursor::Cursor,
     ) -> Result<()> {
         if inlength == 0 {
             return Err(Error::Uncompress("inlength = 0. No work done.".to_string()));
         }
 
-        let mut nvalue = input[inpos.value as usize];
+        let nvalue = input[inpos.value as usize];
 
         self.data_pointers.clone_from_slice(&ZERO_DATA_POINTERS);
 
         let finalout = outpos.get() + nvalue as i32;
-        let this_page_size_to_float = (self.page_size as f64).min((finalout - outpos.get()) as f64);
-        let this_page_size_to_int = this_page_size_to_float as i32;
-
-        // Decode page
+        while outpos.get() != finalout {
+            let thissize = std::cmp::min(self.page_size, finalout - outpos.get()) as isize;
+            self.decode_page(input, inpos, output, outpos, thissize);
+        }
 
         Ok(())
     }
 
+    #[allow(dead_code)]
+    fn encode_page() {}
+
+    #[allow(dead_code)]
     fn decode_page(
         &mut self,
         input: &mut [i32],
-        mut inpos: Cursor,
+        inpos: &mut Cursor,
         output: &mut [i32],
-        mut outpos: Cursor,
+        outpos: &mut Cursor,
         size: isize,
     ) -> &mut Self {
         let initpos = inpos.get();
@@ -97,7 +106,6 @@ impl FastPFOR {
                 }
 
                 for j in 0..size {
-                    // Golang: bitpacking.FastUnpack(in, int(inexcept), this.dataToBePacked[k], int(j), int(k))
                     bitpacking::fast_unpack(
                         input,
                         inexcept as usize,
@@ -180,5 +188,4 @@ mod tests {
         assert_eq!(fastpfor.data_pointers.len(), 33);
         assert_eq!(fastpfor.freqs.len(), 33);
     }
-
 }
