@@ -168,6 +168,8 @@ impl FastPFOR {
 
         self
     }
+
+    fn get_best_b_from_data() {}
 }
 
 #[cfg(test)]

@@ -1,3 +1,48 @@
+pub fn fast_pack(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
+    match bit {
+        0 => fast_pack0(input, inpos, output, outpos),
+        _ => panic!("Unsupported bit width"),
+    }
+}
+
+#[allow(unused_variables)]
+fn fast_pack0(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+    // Nothing
+}
+
+fn fast_pack1() {}
+fn fast_pack2() {}
+fn fast_pack3() {}
+fn fast_pack4() {}
+fn fast_pack5() {}
+fn fast_pack6() {}
+fn fast_pack7() {}
+fn fast_pack8() {}
+fn fast_pack9() {}
+fn fast_pack10() {}
+fn fast_pack11() {}
+fn fast_pack12() {}
+fn fast_pack13() {}
+fn fast_pack14() {}
+fn fast_pack15() {}
+fn fast_pack16() {}
+fn fast_pack17() {}
+fn fast_pack18() {}
+fn fast_pack19() {}
+fn fast_pack20() {}
+fn fast_pack21() {}
+fn fast_pack22() {}
+fn fast_pack23() {}
+fn fast_pack24() {}
+fn fast_pack25() {}
+fn fast_pack26() {}
+fn fast_pack27() {}
+fn fast_pack28() {}
+fn fast_pack29() {}
+fn fast_pack30() {}
+fn fast_pack31() {}
+fn fast_pack32() {}
+
 pub fn fast_unpack(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
     match bit {
         0 => fast_unpack0(output, outpos as usize),
