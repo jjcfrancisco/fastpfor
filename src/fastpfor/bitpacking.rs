@@ -1100,10 +1100,6 @@ fn fast_unpack31(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[30 + inpos] >> 1;
 }
 
-// Java
-// protected static void fastunpack32(final int[] in, int inpos,
-//         final int[] out, int outpos) {
-//         System.arraycopy(in, inpos, out, outpos, 32);
-// }
-
-fn fast_unpack32(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {}
+fn fast_unpack32(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+    output[outpos..outpos + 32].copy_from_slice(&input[inpos..inpos + 32]);
+}
