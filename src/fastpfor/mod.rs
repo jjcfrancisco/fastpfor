@@ -97,12 +97,12 @@ impl FastPFOR {
                 }
 
                 for j in 0..size {
-                    // bitpacking.FastUnpack(in, int(inexcept), this.dataToBePacked[k], int(j), int(k))
+                    // Golang: bitpacking.FastUnpack(in, int(inexcept), this.dataToBePacked[k], int(j), int(k))
                     bitpacking::fast_unpack(
                         input,
-                        inexcept as isize,
+                        inexcept as usize,
                         &mut self.data_to_be_packed[k],
-                        j as isize,
+                        j as usize,
                         k as isize,
                     );
                     inexcept += k as i32;
@@ -123,8 +123,14 @@ impl FastPFOR {
             let cexcept = helpers::grap_byte(my_byte_array, mybp) as u32;
             mybp += 1;
 
-            for _ in (0u32..128).step_by(32) {
-                // bitpacking.FastUnpack(in, int(tmpinpos), out, int(tmpoutpos+k), int(bestb))
+            for k in (0u32..128).step_by(32) {
+                bitpacking::fast_unpack(
+                    input,
+                    tmpinpos as usize,
+                    output,
+                    (tmpoutpos + k) as usize,
+                    bestb as isize,
+                );
                 tmpinpos += bestb;
             }
 
@@ -174,4 +180,5 @@ mod tests {
         assert_eq!(fastpfor.data_pointers.len(), 33);
         assert_eq!(fastpfor.freqs.len(), 33);
     }
+
 }
