@@ -1,24 +1,10 @@
-use derive_more::From;
+pub type Result<T> = core::result::Result<T, FastPForError>;
+use thiserror::Error;
 
-pub type Result<T> = core::result::Result<T, Error>;
-
-#[derive(Debug, From)]
-pub enum Error {
-    // -- FastPFor
+#[derive(Error, Debug)]
+pub enum FastPForError {
+    #[error("Unable to uncompress data: {0}")]
     Uncompress(String),
-
-    // -- Externals
+    #[error("Unable to compress data: {0}")]
+    Compress(String),
 }
-
-// region:    --- Error Boilerplate
-
-impl core::fmt::Display for Error {
-    fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
-        write!(fmt, "{self:?}")
-    }
-}
-
-impl std::error::Error for Error {}
-
-// endregion: --- Error Boilerplate
-

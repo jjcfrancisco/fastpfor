@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::{FastPForError, Result};
 
 mod bitpacking;
 mod cursor;
@@ -43,7 +43,45 @@ impl FastPFOR {
         }
     }
 
-    pub fn compress() {}
+    // Golang:
+    // func (this *FastPFOR) Compress(in []int32, inpos *cursor.Cursor, inlength int, out []int32, outpos *cursor.Cursor) error {
+    // 	inlength = encoding.FloorBy(inlength, DefaultBlockSize)
+    // 	if inlength == 0 {
+    // 		return errors.New("fastpfor/Compress: inlength = 0. No work done.")
+    // 	}
+    // 	out[outpos.Get()] = int32(inlength)
+    // 	outpos.Increment()
+    //
+    // 	copy(this.dataPointers, zeroDataPointers)
+    // 	copy(this.freqs, zeroFreqs)
+    //
+    // 	finalInpos := inpos.Get() + inlength
+    //
+    // 	for inpos.Get() != finalInpos {
+    // 		thissize := int(math.Min(float64(this.pageSize), float64(finalInpos-inpos.Get())))
+    // 		if err := this.encodePage(in, inpos, thissize, out, outpos); err != nil {
+    // 			return errors.New("fastpfor/Compress: " + err.Error())
+    // 		}
+    // 	}
+    //
+    // 	return nil
+    // }
+
+    pub fn compress(
+        &mut self,
+        input: &mut [i32],
+        inpos: &mut cursor::Cursor,
+        inlength: i32,
+        output: &mut [i32],
+        outpos: &mut cursor::Cursor,
+    ) -> Result<()> {
+        let inlength = helpers::floor_by(inlength, DEFAULT_BLOCK_SIZE);
+        if inlength == 0 {
+            return Err(FastPForError::Compress("inlength = 0. No work done.".to_string()));
+        }
+
+        Ok(())
+    }
 
     pub fn uncompress(
         &mut self,
@@ -54,7 +92,7 @@ impl FastPFOR {
         outpos: &mut cursor::Cursor,
     ) -> Result<()> {
         if inlength == 0 {
-            return Err(Error::Uncompress("inlength = 0. No work done.".to_string()));
+            return Err(FastPForError::Uncompress("inlength = 0. No work done.".to_string()));
         }
 
         let nvalue = input[inpos.value as usize];
