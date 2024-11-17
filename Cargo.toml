@@ -5,6 +5,8 @@ edition = "2021"
 
 [dependencies]
 bytebuffer = "2.3.0"
+byteorder = "1.5.0"
 derive_more = "0.99.18"
 rand = "0.8.5"
 thiserror = "1.0.64"
+zerocopy = "0.8.10"
