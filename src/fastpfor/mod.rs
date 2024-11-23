@@ -6,7 +6,7 @@ mod helpers;
 
 use std::io::Cursor;
 
-const BLOCK_SIZE: i32 = 256;
+const BLOCK_SIZE: usize = 256;
 #[allow(dead_code)]
 const OVERHEAD_OF_EACH_EXCEPT: i32 = 8;
 #[allow(dead_code)]
@@ -58,288 +58,23 @@ impl FastPFOR {
     pub fn compress(
         &mut self,
         input: &mut Vec<i32>,
-        inpos: &mut Cursor<i32>,
+        in_pos: &mut Cursor<i32>,
         inlength: i32,
         output: &mut Vec<i32>,
-        outpos: &mut Cursor<i32>,
+        out_pos: &mut Cursor<i32>,
     ) -> Result<()> {
-        let inlength = helpers::floor_by(inlength, BLOCK_SIZE);
-        println!("inlength: {}", inlength);
+        let inlength = helpers::floor_by(inlength, BLOCK_SIZE as i32);
         if inlength == 0 {
             // Should this be an error?
             // return Err(FastPForError::Compress("inlength = 0.".to_string()));
             return Ok(());
         }
-        output[outpos.position() as usize] = inlength;
-        outpos.set_position(outpos.position() + 1);
-        headless_compress(input, inpos, inlength, output, outpos);
+        output[out_pos.position() as usize] = inlength;
+        out_pos.set_position(out_pos.position() + 1);
+        headless_compress(input, in_pos, inlength, output, out_pos);
 
         Ok(())
     }
-
-    // pub fn uncompress(
-    //     &mut self,
-    //     input: &mut [i32],
-    //     inpos: &mut cursor::Cursor,
-    //     inlength: i32,
-    //     output: &mut [i32],
-    //     outpos: &mut cursor::Cursor,
-    // ) -> Result<()> {
-    //     if inlength == 0 {
-    //         return Err(FastPForError::Uncompress(
-    //             "inlength = 0. No work done.".to_string(),
-    //         ));
-    //     }
-    //
-    //     let nvalue = input[inpos.value as usize];
-    //
-    //     self.data_pointers.clone_from_slice(&ZERO_DATA_POINTERS);
-    //
-    //     let finalout = outpos.get() + nvalue as i32;
-    //     while outpos.get() != finalout {
-    //         let thissize = std::cmp::min(self.page_size, finalout - outpos.get()) as isize;
-    //         // TODO: Implement Result so we can return an error here like in the Golang code
-    //         // if err := this.decodePage(in, inpos, out, outpos, thissize); err != nil {
-    //         // 	return errors.New("fastpfor/Uncompress: " + err.Error())
-    //         // }
-    //         self.decode_page(input, inpos, output, outpos, thissize)?;
-    //     }
-    //
-    //     Ok(())
-    // }
-    //
-    // fn encode_page(
-    //     &mut self,
-    //     input: &mut [i32],
-    //     inpos: &mut Cursor,
-    //     thissize: isize,
-    //     output: &mut [i32],
-    //     outpos: &mut Cursor,
-    // ) -> Result<()> {
-    //     let headerpos = outpos.get();
-    //     outpos.increment();
-    //     let mut tmpoutpos = outpos.get();
-    //
-    //     self.data_pointers.clone_from_slice(&ZERO_DATA_POINTERS);
-    //     self.byte_container.clear();
-    //
-    //     let mut tmpinpos = inpos.get();
-    //
-    //     let final_inpos = tmpinpos + thissize as i32 - BLOCK_SIZE;
-    //     while tmpinpos <= final_inpos {
-    //         let (bestb, bestc, maxb) = self.get_best_b_from_data(&input[tmpinpos as usize..]);
-    //         let tmpbestb = bestb;
-    //         self.byte_container.write_u8(bestb as u8);
-    //         self.byte_container.write_u8(bestc as u8);
-    //
-    //         if bestc > 0 {
-    //             self.byte_container.write_u8(maxb as u8);
-    //             let index = maxb - bestb;
-    //             if self.data_pointers[index as usize] + bestc as i32
-    //                 >= self.data_to_be_packed[index as usize].len() as i32
-    //             {
-    //                 let new_size = 2 * (self.data_pointers[index as usize] + bestc);
-    //                 let new_size = helpers::ceil_by(new_size, 32);
-    //                 let new_slice = vec![index as i32; new_size as usize];
-    //                 self.data_to_be_packed[index as usize] = new_slice;
-    //             }
-    //
-    //             for k in 0..BLOCK_SIZE {
-    //                 if input[(k + tmpinpos) as usize] >> bestb != 0 {
-    //                     self.byte_container.write_u8(k as u8);
-    //                     self.data_to_be_packed[index as usize]
-    //                         [self.data_pointers[index as usize] as usize] =
-    //                         input[(k + tmpinpos) as usize] >> tmpbestb;
-    //                     self.data_pointers[index as usize] += 1;
-    //                 }
-    //             }
-    //         }
-    //
-    //         for k in (0..128).step_by(32) {
-    //             bitpacking::fast_pack(
-    //                 input,
-    //                 (tmpinpos + k) as usize,
-    //                 output,
-    //                 tmpoutpos as usize,
-    //                 tmpbestb as isize,
-    //             );
-    //             tmpoutpos += tmpbestb;
-    //         }
-    //
-    //         tmpinpos += BLOCK_SIZE;
-    //     }
-
-    // Golang:
-    // inpos.Set(int(tmpinpos))
-    // out[headerpos] = tmpoutpos - headerpos
-    // bytesize := int32(this.byteContainer.Position())
-    // for this.byteContainer.Position()&3 != 0 {
-    //     this.byteContainer.Put(0)
-    // }
-
-    // out[tmpoutpos] = bytesize
-    // tmpoutpos += 1
-    // howmanyints := (bytesize + 3) / 4
-    // this.byteContainer.Flip()
-    // this.byteContainer.AsInt32Buffer().GetInt32s(out, int(tmpoutpos), int(howmanyints))
-    // tmpoutpos += howmanyints
-
-    // bitmap := int32(0)
-    // for k := 1; k <= 32; k++ {
-    //     v := this.dataPointers[k]
-    //     if v != 0 {
-    //         bitmap |= (1 << uint(k-1))
-    //     }
-    // }
-
-    // out[tmpoutpos] = bitmap
-    // tmpoutpos += 1
-
-    //     inpos.set(tmpinpos as i32);
-    //     output[headerpos as usize] = tmpoutpos - headerpos;
-    //     let bytesize = self.byte_container.get_wpos() as i32;
-    //     while self.byte_container.get_wpos() & 3 != 0 {
-    //         self.byte_container.write_u8(0);
-    //     }
-    //
-    //     output[tmpoutpos as usize] = bytesize;
-    //     tmpoutpos += 1;
-    //     let howmanyints = (bytesize + 3) / 4;
-    //     self.byte_container.set_rpos(0);
-    //     self.byte_container.write_i32(howmanyints);
-    //
-    //     Ok(())
-    // }
-    //
-    // fn decode_page(
-    //     &mut self,
-    //     input: &mut [i32],
-    //     inpos: &mut Cursor,
-    //     output: &mut [i32],
-    //     outpos: &mut Cursor,
-    //     size: isize,
-    // ) -> Result<()> {
-    //     let initpos = inpos.get();
-    //     let wheremeta = input[initpos as usize];
-    //     inpos.increment();
-    //
-    //     let mut inexcept = initpos + wheremeta;
-    //     let byte_size = input[inexcept as usize] as usize;
-    //     inexcept = inexcept + 1;
-    //     let my_byte_array = &input[initpos as usize..].to_vec();
-    //
-    //     let mut mybp = 0;
-    //     inexcept += ((byte_size + 3) / 4) as i32;
-    //     let bitmap = input[inexcept as usize];
-    //     inexcept += 1;
-    //
-    //     for k in 1..33 {
-    //         if bitmap & (1 << (k - 1)) != 0 {
-    //             let size = input[inexcept as usize];
-    //             inexcept += 1;
-    //
-    //             if self.data_to_be_packed[k].len() < size as usize {
-    //                 self.data_to_be_packed[k] = vec![k as i32; size as usize];
-    //             }
-    //
-    //             for j in 0..size {
-    //                 bitpacking::fast_unpack(
-    //                     input,
-    //                     inexcept as usize,
-    //                     &mut self.data_to_be_packed[k],
-    //                     j as usize,
-    //                     k as isize,
-    //                 );
-    //                 inexcept += k as i32;
-    //             }
-    //         }
-    //     }
-    //
-    //     self.data_pointers.clone_from_slice(&ZERO_DATA_POINTERS);
-    //     let mut tmpoutpos = outpos.get() as u32;
-    //     let mut tmpinpos = inpos.get() as u32;
-    //
-    //     let mut run = 0;
-    //     let run_end = size / BLOCK_SIZE as isize;
-    //
-    //     while run < run_end {
-    //         let bestb = helpers::grap_byte(my_byte_array, mybp) as u32;
-    //         mybp += 1;
-    //         let cexcept = helpers::grap_byte(my_byte_array, mybp) as u32;
-    //         mybp += 1;
-    //
-    //         for k in (0u32..128).step_by(32) {
-    //             bitpacking::fast_unpack(
-    //                 input,
-    //                 tmpinpos as usize,
-    //                 output,
-    //                 (tmpoutpos + k) as usize,
-    //                 bestb as isize,
-    //             );
-    //             tmpinpos += bestb;
-    //         }
-    //
-    //         if cexcept > 0 {
-    //             let max_bits = helpers::grap_byte(my_byte_array, mybp) as u32;
-    //             mybp += 1;
-    //             let index = max_bits - bestb;
-    //             let packed_exceptions = &self.data_to_be_packed[index as usize];
-    //             let mut my_index = self.data_pointers[index as usize];
-    //
-    //             for _ in 0..cexcept {
-    //                 let pos = helpers::grap_byte(my_byte_array, mybp) as u32;
-    //                 mybp += 1;
-    //                 let except_value = packed_exceptions[my_index as usize];
-    //                 my_index += 1;
-    //                 output[(pos + tmpoutpos) as usize] |= except_value << bestb;
-    //             }
-    //             self.data_pointers[index as usize] = my_index;
-    //         }
-    //
-    //         run += 1;
-    //         tmpoutpos += BLOCK_SIZE as u32;
-    //     }
-    //
-    //     outpos.set(tmpoutpos as i32);
-    //     inpos.set(inexcept as i32);
-    //
-    //     Ok(())
-    // }
-    //
-    // fn get_best_b_from_data(&mut self, input: &[i32]) -> (i32, i32, i32) {
-    //     self.freqs.clone_from_slice(&ZERO_DATA_POINTERS);
-    //
-    //     for v in input {
-    //         self.freqs[helpers::leading_bit_position(*v as u32) as usize] += 1;
-    //     }
-    //
-    //     let mut bestb = 32;
-    //     while self.freqs[bestb as usize] == 0 {
-    //         bestb -= 1;
-    //     }
-    //
-    //     let maxb = bestb;
-    //     let mut best_cost = bestb * BLOCK_SIZE;
-    //     let mut cexcept = 0;
-    //     let mut bestc = cexcept;
-    //
-    //     for b in (0..bestb).rev() {
-    //         cexcept += self.freqs[(b + 1) as usize];
-    //         if cexcept < 0 {
-    //             break;
-    //         }
-    //
-    //         let this_cost =
-    //             cexcept * OVERHEAD_OF_EACH_EXCEPT + cexcept * (maxb - b) + b * BLOCK_SIZE + 8;
-    //         if this_cost < best_cost {
-    //             best_cost = this_cost;
-    //             bestb = b;
-    //             bestc = cexcept;
-    //         }
-    //     }
-    //
-    //     (bestb, bestc, maxb)
-    // }
 }
 
 fn headless_compress(
@@ -356,36 +91,67 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_new() {
-        let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
-        let mut input = vec![-1];
-        let input_len = input.len() as i32;
-        let mut output = vec![0i32; input.len() * 4 * 4];
-
-        let mut inpos = Cursor::new(0); // Make inpos mutable
-        let mut outpos = Cursor::new(0); // Also make outpos mutable
-
-        fastpfor
-            .compress(&mut input, &mut inpos, input_len, &mut output, &mut outpos)
-            .unwrap();
+    fn fastpfor_test() {
+        let mut codec1 = FastPFOR::new(DEFAULT_PAGE_SIZE);
+        let mut data = vec![0; BLOCK_SIZE];
+        data[126] = -1;
+        let mut out_buf = vec![0; data.len() * 4];
+        let mut in_pos = Cursor::new(0);
+        let mut out_pos = Cursor::new(0);
+        codec1.compress(&mut data, &mut in_pos, BLOCK_SIZE as i32, &mut out_buf, &mut out_pos).unwrap();
+        
     }
 
-    #[test]
-    fn saul_test() {
-        let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
-
-        for i in 0..50 {
-
-            let mut a = vec![2, 3, 4, 5];
-            let a_size = a.len() as i32;
-            let mut b = vec![0; 90];
-
-            let mut a_offset = Cursor::new(0);
-            let mut b_offset = Cursor::new(i);
-
-            fastpfor
-                .compress(&mut a, &mut a_offset, a_size, &mut b, &mut b_offset)
-                .unwrap();
-        }
-    }
+    // #[test]
+    // fn test_new() {
+    //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
+    //     let mut input = vec![-1];
+    //     let input_len = input.len() as i32;
+    //     let mut output = vec![0i32; input.len() * 4 * 4];
+    //
+    //     let mut inpos = Cursor::new(0);
+    //     let mut outpos = Cursor::new(0);
+    //
+    //     fastpfor
+    //         .compress(&mut input, &mut inpos, input_len, &mut output, &mut outpos)
+    //         .unwrap();
+    // }
+    //
+    // #[test]
+    // fn saul_test() {
+    //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
+    //
+    //     for i in 0..50 {
+    //
+    //         let mut a = vec![2, 3, 4, 5];
+    //         let a_size = a.len() as i32;
+    //         let mut b = vec![0; 90];
+    //
+    //         let mut a_offset = Cursor::new(0);
+    //         let mut b_offset = Cursor::new(i);
+    //
+    //         fastpfor
+    //             .compress(&mut a, &mut a_offset, a_size, &mut b, &mut b_offset)
+    //             .unwrap();
+    //     }
+    // }
+    //
+    // #[test]
+    // fn all_power_of_two_test() {
+    //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
+    //
+    //     for i in 0..50 {
+    //
+    //         let mut a = vec![1i32 << 42];
+    //         let a_size = a.len() as i32;
+    //         let mut b = vec![0; 90];
+    //
+    //         let mut a_offset = Cursor::new(0);
+    //         let mut b_offset = Cursor::new(i);
+    //
+    //         fastpfor
+    //             .compress(&mut a, &mut a_offset, a_size, &mut b, &mut b_offset)
+    //             .unwrap();
+    //     }
+    // }
 }
