@@ -13,16 +13,6 @@ const DEFAULT_PAGE_SIZE: u32 = 65536;
 #[allow(dead_code)]
 const ZERO_DATA_POINTERS: [i32; 32] = [0; 32];
 
-trait IncreaseCursor {
-    fn increase(&mut self);
-}
-
-impl IncreaseCursor for Cursor<i32> {
-    fn increase(&mut self) {
-        self.set_position(self.position() + 1); // Position needs to be a u64
-    }
-}
-
 pub struct FastPFOR {
     pub data_to_be_packed: Vec<Vec<usize>>,
     pub bytes_container: Vec<u8>,
@@ -80,7 +70,7 @@ impl FastPFOR {
         }
         println!("test: {:?}", out_pos);
         output[out_pos.position() as usize] = inlength;
-        out_pos.increase();
+        out_pos.increment();
         self.headless_compress(input, in_pos, inlength, output, out_pos);
 
         Ok(())
@@ -111,6 +101,8 @@ impl FastPFOR {
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
     ) {
+        let header_pos = out_pos.position() as usize;
+        out_pos.increment();
     }
 
 }
@@ -138,21 +130,21 @@ mod tests {
             .unwrap();
     }
 
-    // #[test]
-    // fn test_new() {
-    //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
-    //     let mut input = vec![-1];
-    //     let input_len = input.len() as i32;
-    //     let mut output = vec![0i32; input.len() * 4 * 4];
-    //
-    //     let mut inpos = Cursor::new(0);
-    //     let mut outpos = Cursor::new(0);
-    //
-    //     fastpfor
-    //         .compress(&mut input, &mut inpos, input_len, &mut output, &mut outpos)
-    //         .unwrap();
-    // }
-    //
+    #[test]
+    fn test_new() {
+        let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
+        let mut input = vec![-1];
+        let input_len = input.len() as i32;
+        let mut output = vec![0i32; input.len() * 4 * 4];
+    
+        let mut inpos = Cursor::new(0);
+        let mut outpos = Cursor::new(0);
+    
+        fastpfor
+            .compress(&mut input, &mut inpos, input_len, &mut output, &mut outpos)
+            .unwrap();
+    }
+    
     // #[test]
     // fn saul_test() {
     //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
