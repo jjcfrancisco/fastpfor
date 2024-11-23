@@ -9,21 +9,30 @@ use std::io::Cursor;
 const BLOCK_SIZE: usize = 256;
 #[allow(dead_code)]
 const OVERHEAD_OF_EACH_EXCEPT: i32 = 8;
+const DEFAULT_PAGE_SIZE: u32 = 65536;
 #[allow(dead_code)]
-const DEFAULT_PAGE_SIZE: i32 = 65536;
 const ZERO_DATA_POINTERS: [i32; 32] = [0; 32];
 
-#[allow(dead_code)]
-struct FastPFOR {
-    data_to_be_packed: Vec<Vec<usize>>,
-    byte_container: Vec<u8>,
-    page_size: i32,
-    data_pointers: Vec<usize>,
-    freqs: Vec<usize>,
+trait IncreaseCursor {
+    fn increase(&mut self);
+}
+
+impl IncreaseCursor for Cursor<i32> {
+    fn increase(&mut self) {
+        self.set_position(self.position() + 1); // Position needs to be a u64
+    }
+}
+
+pub struct FastPFOR {
+    pub data_to_be_packed: Vec<Vec<usize>>,
+    pub bytes_container: Vec<u8>,
+    pub page_size: u32,
+    pub data_pointers: Vec<usize>,
+    pub freqs: Vec<usize>,
 }
 
 impl FastPFOR {
-    pub fn new(page_size: i32) -> FastPFOR {
+    pub fn new(page_size: u32) -> FastPFOR {
         FastPFOR {
             page_size,
             // KEEP FOR REFERENCE RE byte_container
@@ -40,7 +49,7 @@ impl FastPFOR {
             //            .expect("Slice must be 4 bytes long"),
             //    )
             //}
-            byte_container: Vec::with_capacity(
+            bytes_container: Vec::with_capacity(
                 3 * page_size as usize / BLOCK_SIZE as usize + page_size as usize,
             ),
             data_to_be_packed: {
@@ -63,27 +72,47 @@ impl FastPFOR {
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
     ) -> Result<()> {
-        let inlength = helpers::floor_by(inlength, BLOCK_SIZE as i32);
+        let inlength = helpers::greatest_multiple(inlength, BLOCK_SIZE as i32);
         if inlength == 0 {
             // Should this be an error?
-            // return Err(FastPForError::Compress("inlength = 0.".to_string()));
-            return Ok(());
+            return Err(FastPForError::Compress("inlength = 0.".to_string()));
+            // return Ok(());
         }
+        println!("test: {:?}", out_pos);
         output[out_pos.position() as usize] = inlength;
-        out_pos.set_position(out_pos.position() + 1);
-        headless_compress(input, in_pos, inlength, output, out_pos);
+        out_pos.increase();
+        self.headless_compress(input, in_pos, inlength, output, out_pos);
 
         Ok(())
     }
-}
 
-fn headless_compress(
-    input: &mut Vec<i32>,
-    inpos: &mut Cursor<i32>,
-    inlength: i32,
-    output: &mut Vec<i32>,
-    outpos: &mut Cursor<i32>,
-) {
+    fn headless_compress(
+        &mut self,
+        input: &mut Vec<i32>,
+        in_pos: &mut Cursor<i32>,
+        inlength: i32,
+        output: &mut Vec<i32>,
+        out_pos: &mut Cursor<i32>,
+    ) {
+        let _inlength = helpers::greatest_multiple(inlength, BLOCK_SIZE as i32);
+        let pos = in_pos.position() as i32;
+        let final_inpos = pos + inlength;
+        while pos != final_inpos {
+            let this_size = std::cmp::min(self.page_size as i32, final_inpos - pos);
+            self.encode_page(input, in_pos, this_size, output, out_pos);
+        }
+    }
+
+    fn encode_page(
+        &mut self,
+        input: &mut Vec<i32>,
+        in_pos: &mut Cursor<i32>,
+        thissize: i32,
+        output: &mut Vec<i32>,
+        out_pos: &mut Cursor<i32>,
+    ) {
+    }
+
 }
 
 #[cfg(test)]
@@ -98,8 +127,15 @@ mod tests {
         let mut out_buf = vec![0; data.len() * 4];
         let mut in_pos = Cursor::new(0);
         let mut out_pos = Cursor::new(0);
-        codec1.compress(&mut data, &mut in_pos, BLOCK_SIZE as i32, &mut out_buf, &mut out_pos).unwrap();
-        
+        codec1
+            .compress(
+                &mut data,
+                &mut in_pos,
+                BLOCK_SIZE as i32,
+                &mut out_buf,
+                &mut out_pos,
+            )
+            .unwrap();
     }
 
     // #[test]
