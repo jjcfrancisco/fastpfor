@@ -73,19 +73,6 @@ impl FastPFOR {
         println!("test: {:?}", out_pos);
         output[out_pos.position() as usize] = inlength;
         out_pos.increment();
-        self.headless_compress(input, in_pos, inlength, output, out_pos);
-
-        Ok(())
-    }
-
-    fn headless_compress(
-        &mut self,
-        input: &mut Vec<i32>,
-        in_pos: &mut Cursor<i32>,
-        inlength: i32,
-        output: &mut Vec<i32>,
-        out_pos: &mut Cursor<i32>,
-    ) {
         let _inlength = helpers::greatest_multiple(inlength, BLOCK_SIZE as i32);
         let pos = in_pos.position() as i32;
         let final_inpos = pos + inlength;
@@ -93,6 +80,8 @@ impl FastPFOR {
             let this_size = std::cmp::min(self.page_size, final_inpos - pos);
             self.encode_page(input, in_pos, this_size, output, out_pos);
         }
+
+        Ok(())
     }
 
     fn encode_page(
