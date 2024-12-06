@@ -1,3 +1,6 @@
+use std::u32;
+
+#[derive(Debug)]
 pub struct ByteBuffer {
     buffer: Vec<u8>,
     position: usize,
@@ -56,5 +59,19 @@ impl ByteBuffer {
     pub fn as_slice(&self) -> &[u8] {
         &self.buffer
     }
+
+    // Flip the buffer, setting the limit to the current position
+    pub fn flip(&mut self) {
+        self.limit = self.position;
+        self.position = 0;
+    }
+    // Java: byteContainer.asIntBuffer()
+    // Rust example:
+    // fn main() {
+    //     let buf = [0, 0, 0, 1];
+    //     let num = u32::from_be_bytes(buf);
+    //
+    //     assert_eq!(1, num);
+    // }
 }
 
