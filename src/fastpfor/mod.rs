@@ -146,7 +146,7 @@ impl FastPFOR {
         output[header_pos as usize] = tmp_out_pos as i32 - header_pos as i32;
         let byte_size = self.bytes_container.position();
         while (self.bytes_container.position() & 3) != 0 {
-            println!("helloo");
+            println!("test");
             self.bytes_container.put(0);
         }
         output[tmp_out_pos as usize] = byte_size as i32;
