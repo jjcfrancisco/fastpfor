@@ -93,7 +93,7 @@ impl FastPFOR {
     ) {
         let header_pos = out_pos.position() as usize;
         out_pos.increment();
-        let mut tmp_out_pos = out_pos.position();
+        let mut tmp_out_pos = out_pos.position() as i32;
 
         // Data pointers to 0
         self.data_pointers.fill(0);
@@ -138,7 +138,7 @@ impl FastPFOR {
                     tmp_out_pos as usize,
                     tmp_best_b as isize,
                 );
-                tmp_out_pos += tmp_best_b as u64;
+                tmp_out_pos += tmp_best_b;
             }
             tmp_in_pos += BLOCK_SIZE;
         }
@@ -146,12 +146,23 @@ impl FastPFOR {
         output[header_pos as usize] = tmp_out_pos as i32 - header_pos as i32;
         let byte_size = self.bytes_container.position();
         while (self.bytes_container.position() & 3) != 0 {
-            println!("test");
             self.bytes_container.put(0);
         }
         output[tmp_out_pos as usize] = byte_size as i32;
         let how_many_ints = self.bytes_container.position() / 4;
         self.bytes_container.flip();
+        let int_buffer = self.bytes_container.as_int_buffer();
+        int_buffer.get(output, tmp_out_pos as usize, how_many_ints as usize);
+        tmp_out_pos += how_many_ints;
+        let mut bitmap = 0;
+        for k in 2..=32 {
+            if self.data_pointers[k] != 0 {
+                bitmap |= 1 << (k - 1);
+            }
+        }
+        output[tmp_out_pos as usize] = bitmap;
+        tmp_out_pos += 1;
+
     }
 
     fn best_b_from_data(&mut self, input: &mut Vec<i32>, pos: i32) {
@@ -213,82 +224,4 @@ mod tests {
             )
             .unwrap();
     }
-
-    // #[test]
-    // fn basic_example() {
-    //     let mut data = vec![0; 2342351];
-    //     for k in 0..data.len() {
-    //         data[k] = k as i32;
-    //     }
-    //     let mut compressed = vec![0; data.len() + 1024];
-    //     let mut input_offset = Cursor::new(0);
-    //     let mut output_offset = Cursor::new(0);
-    //     let mut codec = FastPFOR::new(DEFAULT_PAGE_SIZE);
-    //     let result = codec.compress(
-    //         &mut data.clone(),
-    //         &mut input_offset,
-    //         data.len() as i32,
-    //         &mut compressed,
-    //         &mut output_offset,
-    //     );
-    //     if result.is_err() {
-    //         println!("{:?}", result.err().unwrap());
-    //     }
-    // }
-
-    // #[test]
-    // fn test_new() {
-    //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
-    //     let mut input = vec![-1];
-    //     let input_len = input.len() as i32;
-    //     let mut output = vec![0i32; input.len() * 4 * 4];
-
-    //     let mut inpos = Cursor::new(0);
-    //     let mut outpos = Cursor::new(0);
-
-    //     fastpfor
-    //         .compress(&mut input, &mut inpos, input_len, &mut output, &mut outpos)
-    //         .unwrap();
-    // }
-
-    // #[test]
-    // fn saul_test() {
-    //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
-    //
-    //     for i in 0..50 {
-    //
-    //         let mut a = vec![2, 3, 4, 5];
-    //         let mut b = vec![0; 90];
-    //         let c = a.len() as i32;
-    //
-    //         let mut a_offset = Cursor::new(0);
-    //         let mut b_offset = Cursor::new(i);
-    //
-    //         let res = fastpfor
-    //             .compress(&mut a, &mut a_offset, c, &mut b, &mut b_offset);
-    //         if res.is_err() {
-    //             // Printout error message without panic
-    //             println!("{:?}", res.err().unwrap());
-    //         }
-    //     }
-    // }
-
-    // #[test]
-    // fn all_power_of_two_test() {
-    //     let mut fastpfor = FastPFOR::new(DEFAULT_PAGE_SIZE);
-    //
-    //     for i in 0..50 {
-    //
-    //         let mut a = vec![1i32 << 42];
-    //         let a_size = a.len() as i32;
-    //         let mut b = vec![0; 90];
-    //
-    //         let mut a_offset = Cursor::new(0);
-    //         let mut b_offset = Cursor::new(i);
-    //
-    //         fastpfor
-    //             .compress(&mut a, &mut a_offset, a_size, &mut b, &mut b_offset)
-    //             .unwrap();
-    //     }
-    // }
 }

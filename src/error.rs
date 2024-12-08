@@ -7,4 +7,6 @@ pub enum FastPForError {
     Uncompress(String),
     #[error("Unable to compress data: {0}")]
     Compress(String),
+    #[error("Invalid block size: {0}")]
+    InvalidBlockSize(String),
 }
