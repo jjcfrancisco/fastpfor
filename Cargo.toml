@@ -11,3 +11,13 @@ derive_more = "0.99.18"
 rand = "0.8.5"
 thiserror = "1.0.64"
 zerocopy = "0.8.10"
+
+[lints.rust]
+unused_assignments = "allow"
+dead_code = "allow"
+
+[lints.clippy]
+identity_op = "allow"
+unnecessary_cast = "allow"
+ptr_arg = "allow"
+needless_range_loop="allow"
