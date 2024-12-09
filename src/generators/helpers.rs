@@ -1,5 +1,6 @@
-use crate::Result;
 use rand::Rng;
+
+use crate::Result;
 
 fn generate_set() -> Result<Vec<i32>> {
     let n = 128 * 1024;

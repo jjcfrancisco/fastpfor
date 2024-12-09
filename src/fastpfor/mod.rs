@@ -162,7 +162,6 @@ impl FastPFOR {
         }
         output[tmp_out_pos as usize] = bitmap;
         tmp_out_pos += 1;
-
     }
 
     fn best_b_from_data(&mut self, input: &mut Vec<i32>, pos: i32) {
