@@ -15,6 +15,7 @@ const DEFAULT_PAGE_SIZE: i32 = 65536;
 #[allow(dead_code)]
 const ZERO_DATA_POINTERS: [i32; 32] = [0; 32];
 
+#[derive(Debug)]
 pub struct FastPFOR {
     pub data_to_be_packed: Vec<Vec<i32>>,
     pub bytes_container: bytebuffer::ByteBuffer,
@@ -42,9 +43,7 @@ impl FastPFOR {
             //            .expect("Slice must be 4 bytes long"),
             //    )
             //}
-            bytes_container: bytebuffer::ByteBuffer::new(
-                (3 * page_size / BLOCK_SIZE + page_size) as usize,
-            ),
+            bytes_container: bytebuffer::ByteBuffer::new(3 * page_size / BLOCK_SIZE + page_size),
             data_to_be_packed: {
                 let mut data_to_be_packed: Vec<Vec<i32>> = vec![Vec::new(); 33];
                 for _ in 1..data_to_be_packed.len() {
@@ -108,7 +107,7 @@ impl FastPFOR {
             self.bytes_container.put(self.bestbbestcexceptmaxb[1] as u8);
             if self.bestbbestcexceptmaxb[1] > 0 {
                 self.bytes_container.put(self.bestbbestcexceptmaxb[2] as u8);
-                let index = self.bestbbestcexceptmaxb[2] - self.bestbbestcexceptmaxb[0];
+                let mut index = self.bestbbestcexceptmaxb[2] - self.bestbbestcexceptmaxb[0];
                 if self.data_pointers[index as usize] + self.bestbbestcexceptmaxb[1] as usize
                     >= self.data_to_be_packed[index as usize].len()
                 {
@@ -127,6 +126,7 @@ impl FastPFOR {
                         self.data_to_be_packed[index as usize]
                             [self.data_pointers[index as usize]] =
                             input[(k + tmp_in_pos) as usize] >> tmp_best_b;
+                        self.data_pointers[index as usize] += 1;
                     }
                 }
             }
@@ -148,9 +148,12 @@ impl FastPFOR {
         while (self.bytes_container.position() & 3) != 0 {
             self.bytes_container.put(0);
         }
+        // Output should have 3 position as 4
         output[tmp_out_pos as usize] = byte_size as i32;
+        tmp_out_pos += 1;
         let how_many_ints = self.bytes_container.position() / 4;
         self.bytes_container.flip();
+
         let int_buffer = self.bytes_container.as_int_buffer();
         int_buffer.get(output, tmp_out_pos as usize, how_many_ints as usize);
         tmp_out_pos += how_many_ints;
@@ -175,12 +178,13 @@ impl FastPFOR {
         while self.freqs[self.bestbbestcexceptmaxb[0] as usize] == 0 {
             self.bestbbestcexceptmaxb[0] -= 1;
         }
+        self.bestbbestcexceptmaxb[2] = self.bestbbestcexceptmaxb[0];
 
         let mut bestcost = self.bestbbestcexceptmaxb[0] * BLOCK_SIZE;
         let mut cexcept: i32 = 0;
         self.bestbbestcexceptmaxb[1] = cexcept;
 
-        for b in (0..self.bestbbestcexceptmaxb[0] - 1).rev() {
+        for b in (0..self.bestbbestcexceptmaxb[0]).rev() {
             cexcept += self.freqs[b as usize + 1];
             if cexcept == BLOCK_SIZE {
                 break;
