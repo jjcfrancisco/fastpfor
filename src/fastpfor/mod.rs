@@ -45,7 +45,8 @@ impl FastPFOR {
             //}
             bytes_container: bytebuffer::ByteBuffer::new(3 * page_size / BLOCK_SIZE + page_size),
             data_to_be_packed: {
-                let mut data_to_be_packed: Vec<Vec<i32>> = vec![vec![0; page_size as usize / 32 * 4]; 33];
+                let mut data_to_be_packed: Vec<Vec<i32>> =
+                    vec![vec![0; page_size as usize / 32 * 4]; 33];
                 for _ in 1..data_to_be_packed.len() {
                     data_to_be_packed.push(vec![0; page_size as usize / 32 * 4]);
                 }
