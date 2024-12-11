@@ -229,6 +229,17 @@ impl FastPFOR {
             }
         }
     }
+
+    pub fn uncompress(
+        &mut self,
+        input: &mut Vec<i32>,
+        in_pos: &mut Cursor<i32>,
+        output: &mut Vec<i32>,
+        out_pos: &mut Cursor<i32>,
+    ) -> Result<()> {
+        Ok(())
+    }
+
 }
 
 #[cfg(test)]
