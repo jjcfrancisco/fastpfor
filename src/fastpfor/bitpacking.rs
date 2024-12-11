@@ -1100,13 +1100,6 @@ fn fast_pack31(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[31 + outpos] = input[30 + inpos] >> 1;
 }
 fn fast_pack32(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
-<<<<<<< Updated upstream
-=======
-    // println!("input: {:?}", input);
-    // println!("inpos: {:?}", inpos);
-    // println!("output: {:?}", output);
-    // println!("outpos: {:?}", outpos);
->>>>>>> Stashed changes
     output[outpos..outpos + 32].copy_from_slice(&input[inpos..inpos + 32]);
 }
 
