@@ -4,7 +4,8 @@ use bytemuck::cast_slice;
 pub struct ByteBuffer {
     buffer: Vec<u8>,
     position: i32,
-    limit: usize,
+    limit: i32,
+    capacity: i32,
 }
 
 #[derive(Debug)]
@@ -14,18 +15,19 @@ pub struct IntBuffer {
 
 impl ByteBuffer {
     // Create a new ByteBuffer with the specified capacity
-    pub fn new(capacity: usize) -> Self {
+    pub fn new(capacity: i32) -> Self {
         ByteBuffer {
-            buffer: vec![0; capacity],
+            buffer: vec![],
             position: 0,
             limit: capacity,
+            capacity,
         }
     }
 
     // Clear the buffer, resetting position and limit
     pub fn clear(&mut self) {
         self.position = 0;
-        self.limit = self.buffer.len();
+        self.limit = self.capacity;
     }
 
     // Get the current position
@@ -46,8 +48,14 @@ impl ByteBuffer {
         if self.position >= self.limit as i32 {
             panic!("Buffer overflow");
         }
-        self.buffer[self.position as usize] = byte;
-        self.position += 1;
+
+        if self.position as usize >= self.buffer.len() {
+            // Extend the buffer with zeros to fill the gap
+            self.buffer.resize(self.position as usize + 1, 0);
+        }
+
+        self.buffer[self.position as usize] = byte; // Write the byte at the position
+        self.position += 1; // Increment the position
     }
 
     // Read a single byte from the buffer
@@ -67,7 +75,7 @@ impl ByteBuffer {
 
     // Flip the buffer, setting the limit to the current position
     pub fn flip(&mut self) {
-        self.limit = self.position as usize;
+        self.limit = self.position;
         self.position = 0;
     }
 
@@ -78,6 +86,14 @@ impl ByteBuffer {
         if self.buffer.len() % 4 != 0 {
             panic!("Buffer length is not a multiple of 4");
         }
+
+        // let test = self.buffer.chunks(4).map(|chunk| {
+        //     let mut bytes = [0; 4];
+        //     bytes.copy_from_slice(chunk);
+        //     i32::from_le_bytes(bytes)
+        // });
+        //
+        // println!("{:?}", test.collect::<Vec<i32>>());
 
         IntBuffer {
             buffer: cast_slice(&self.buffer).to_vec(),
