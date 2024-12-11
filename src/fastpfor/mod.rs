@@ -15,6 +15,7 @@ const DEFAULT_PAGE_SIZE: i32 = 65536;
 #[allow(dead_code)]
 const ZERO_DATA_POINTERS: [i32; 32] = [0; 32];
 
+#[derive(Debug)]
 pub struct FastPFOR {
     pub data_to_be_packed: Vec<Vec<i32>>,
     pub bytes_container: bytebuffer::ByteBuffer,
@@ -42,13 +43,12 @@ impl FastPFOR {
             //            .expect("Slice must be 4 bytes long"),
             //    )
             //}
-            bytes_container: bytebuffer::ByteBuffer::new(
-                (3 * page_size / BLOCK_SIZE + page_size) as usize,
-            ),
+            bytes_container: bytebuffer::ByteBuffer::new(3 * page_size / BLOCK_SIZE + page_size),
             data_to_be_packed: {
-                let mut data_to_be_packed: Vec<Vec<i32>> = vec![Vec::new(); 33];
+                let mut data_to_be_packed: Vec<Vec<i32>> =
+                    vec![vec![0; page_size as usize / 32 * 4]; 33];
                 for _ in 1..data_to_be_packed.len() {
-                    data_to_be_packed.push(vec![1; DEFAULT_PAGE_SIZE as usize / 32 * 4]);
+                    data_to_be_packed.push(vec![0; page_size as usize / 32 * 4]);
                 }
                 data_to_be_packed
             },
@@ -127,6 +127,7 @@ impl FastPFOR {
                         self.data_to_be_packed[index as usize]
                             [self.data_pointers[index as usize]] =
                             input[(k + tmp_in_pos) as usize] >> tmp_best_b;
+                        self.data_pointers[index as usize] += 1;
                     }
                 }
             }
@@ -148,9 +149,12 @@ impl FastPFOR {
         while (self.bytes_container.position() & 3) != 0 {
             self.bytes_container.put(0);
         }
+        // Output should have 3 position as 4
         output[tmp_out_pos as usize] = byte_size as i32;
+        tmp_out_pos += 1;
         let how_many_ints = self.bytes_container.position() / 4;
         self.bytes_container.flip();
+
         let int_buffer = self.bytes_container.as_int_buffer();
         int_buffer.get(output, tmp_out_pos as usize, how_many_ints as usize);
         tmp_out_pos += how_many_ints;
@@ -162,6 +166,31 @@ impl FastPFOR {
         }
         output[tmp_out_pos as usize] = bitmap;
         tmp_out_pos += 1;
+
+        for k in 2..=32 {
+            if self.data_pointers[k] != 0 {
+                output[tmp_out_pos as usize] = self.data_pointers[k] as i32;
+                tmp_out_pos += 1;
+                let mut j = 0;
+                while j < self.data_pointers[k as usize] {
+                    // println!("data_to_be_packed[k]: {:?}", self.data_to_be_packed[k as usize]);
+                    bitpacking::fast_pack(
+                        &self.data_to_be_packed[k as usize],
+                        j,
+                        output,
+                        tmp_out_pos as usize,
+                        k as isize,
+                    );
+                    tmp_out_pos += k as i32;
+                    j += 32;
+                }
+
+                // Overflow adjustment
+                let overflow = j as i32 - self.data_pointers[k as usize] as i32;
+                tmp_out_pos -= (overflow * k as i32) / 32;
+            }
+        }
+        out_pos.set_position(tmp_out_pos as u64);
     }
 
     fn best_b_from_data(&mut self, input: &mut Vec<i32>, pos: i32) {
@@ -175,12 +204,13 @@ impl FastPFOR {
         while self.freqs[self.bestbbestcexceptmaxb[0] as usize] == 0 {
             self.bestbbestcexceptmaxb[0] -= 1;
         }
+        self.bestbbestcexceptmaxb[2] = self.bestbbestcexceptmaxb[0];
 
         let mut bestcost = self.bestbbestcexceptmaxb[0] * BLOCK_SIZE;
         let mut cexcept: i32 = 0;
         self.bestbbestcexceptmaxb[1] = cexcept;
 
-        for b in (0..self.bestbbestcexceptmaxb[0] - 1).rev() {
+        for b in (0..self.bestbbestcexceptmaxb[0]).rev() {
             cexcept += self.freqs[b as usize + 1];
             if cexcept == BLOCK_SIZE {
                 break;
@@ -222,6 +252,12 @@ mod tests {
                 &mut out_pos,
             )
             .unwrap();
+        let initial_values = vec![256, 1, 4, 2116026624, -2147483648, 1, -1];
+        let zeros_count = 1024 - initial_values.len();
+        let mut out_buf_compressed: Vec<i32> = initial_values;
+        out_buf_compressed.extend(vec![0; zeros_count]);
+
+        assert_eq!(out_buf_compressed, out_buf);
     }
 
     // Add two tests

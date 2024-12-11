@@ -1,4 +1,4 @@
-pub fn fast_pack(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
+pub fn fast_pack(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
     match bit {
         0 => fast_pack0(input, inpos, output, outpos),
         1 => fast_pack1(input, inpos, output, outpos),
@@ -15,33 +15,34 @@ pub fn fast_pack(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
         12 => fast_pack12(input, inpos, output, outpos),
         13 => fast_pack13(input, inpos, output, outpos),
         14 => fast_pack14(input, inpos, output, outpos),
-        16 => fast_pack15(input, inpos, output, outpos),
-        17 => fast_pack16(input, inpos, output, outpos),
-        18 => fast_pack17(input, inpos, output, outpos),
-        19 => fast_pack18(input, inpos, output, outpos),
-        20 => fast_pack19(input, inpos, output, outpos),
-        21 => fast_pack20(input, inpos, output, outpos),
-        22 => fast_pack21(input, inpos, output, outpos),
-        23 => fast_pack22(input, inpos, output, outpos),
-        24 => fast_pack23(input, inpos, output, outpos),
-        25 => fast_pack24(input, inpos, output, outpos),
-        26 => fast_pack25(input, inpos, output, outpos),
-        27 => fast_pack26(input, inpos, output, outpos),
-        28 => fast_pack27(input, inpos, output, outpos),
-        29 => fast_pack28(input, inpos, output, outpos),
-        30 => fast_pack29(input, inpos, output, outpos),
-        31 => fast_pack30(input, inpos, output, outpos),
-        32 => fast_pack31(input, inpos, output, outpos),
+        15 => fast_pack15(input, inpos, output, outpos),
+        16 => fast_pack16(input, inpos, output, outpos),
+        17 => fast_pack17(input, inpos, output, outpos),
+        18 => fast_pack18(input, inpos, output, outpos),
+        19 => fast_pack19(input, inpos, output, outpos),
+        20 => fast_pack20(input, inpos, output, outpos),
+        21 => fast_pack21(input, inpos, output, outpos),
+        22 => fast_pack22(input, inpos, output, outpos),
+        23 => fast_pack23(input, inpos, output, outpos),
+        24 => fast_pack24(input, inpos, output, outpos),
+        25 => fast_pack25(input, inpos, output, outpos),
+        26 => fast_pack26(input, inpos, output, outpos),
+        27 => fast_pack27(input, inpos, output, outpos),
+        28 => fast_pack28(input, inpos, output, outpos),
+        29 => fast_pack29(input, inpos, output, outpos),
+        30 => fast_pack30(input, inpos, output, outpos),
+        31 => fast_pack31(input, inpos, output, outpos),
+        32 => fast_pack32(input, inpos, output, outpos),
         _ => panic!("Unsupported bit width"),
     }
 }
 
 #[allow(unused_variables)]
-fn fast_pack0(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack0(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     // Nothing
 }
 
-fn fast_pack1(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack1(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1;
     output[1 + outpos] = (input[0 + inpos] >> 1) & 1;
     output[2 + outpos] = (input[0 + inpos] >> 2) & 1;
@@ -75,7 +76,7 @@ fn fast_pack1(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[0 + inpos] >> 30) & 1;
     output[31 + outpos] = input[0 + inpos] >> 31;
 }
-fn fast_pack2(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack2(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 3;
     output[1 + outpos] = (input[0 + inpos] >> 2) & 3;
     output[2 + outpos] = (input[0 + inpos] >> 4) & 3;
@@ -109,7 +110,7 @@ fn fast_pack2(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[1 + inpos] >> 28) & 3;
     output[31 + outpos] = input[1 + inpos] >> 30;
 }
-fn fast_pack3(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack3(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 7;
     output[1 + outpos] = (input[0 + inpos] >> 3) & 7;
     output[2 + outpos] = (input[0 + inpos] >> 6) & 7;
@@ -143,7 +144,7 @@ fn fast_pack3(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[2 + inpos] >> 26) & 7;
     output[31 + outpos] = input[2 + inpos] >> 29;
 }
-fn fast_pack4(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack4(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 15;
     output[1 + outpos] = (input[0 + inpos] >> 4) & 15;
     output[2 + outpos] = (input[0 + inpos] >> 8) & 15;
@@ -177,7 +178,7 @@ fn fast_pack4(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[3 + inpos] >> 24) & 15;
     output[31 + outpos] = input[3 + inpos] >> 28;
 }
-fn fast_pack5(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack5(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 31;
     output[1 + outpos] = (input[0 + inpos] >> 5) & 31;
     output[2 + outpos] = (input[0 + inpos] >> 10) & 31;
@@ -211,7 +212,7 @@ fn fast_pack5(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[4 + inpos] >> 22) & 31;
     output[31 + outpos] = input[4 + inpos] >> 27;
 }
-fn fast_pack6(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack6(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 63;
     output[1 + outpos] = (input[0 + inpos] >> 6) & 63;
     output[2 + outpos] = (input[0 + inpos] >> 12) & 63;
@@ -245,7 +246,7 @@ fn fast_pack6(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[5 + inpos] >> 20) & 63;
     output[31 + outpos] = input[5 + inpos] >> 26;
 }
-fn fast_pack7(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack7(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 127;
     output[1 + outpos] = (input[0 + inpos] >> 7) & 127;
     output[2 + outpos] = (input[0 + inpos] >> 14) & 127;
@@ -279,7 +280,7 @@ fn fast_pack7(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[6 + inpos] >> 18) & 127;
     output[31 + outpos] = input[6 + inpos] >> 25;
 }
-fn fast_pack8(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack8(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 255;
     output[1 + outpos] = (input[0 + inpos] >> 8) & 255;
     output[2 + outpos] = (input[0 + inpos] >> 16) & 255;
@@ -313,7 +314,7 @@ fn fast_pack8(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[7 + inpos] >> 16) & 255;
     output[31 + outpos] = input[7 + inpos] >> 24;
 }
-fn fast_pack9(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack9(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 511;
     output[1 + outpos] = (input[0 + inpos] >> 9) & 511;
     output[2 + outpos] = (input[0 + inpos] >> 18) & 511;
@@ -347,7 +348,7 @@ fn fast_pack9(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize
     output[30 + outpos] = (input[8 + inpos] >> 14) & 511;
     output[31 + outpos] = input[8 + inpos] >> 23;
 }
-fn fast_pack10(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack10(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1023;
     output[1 + outpos] = (input[0 + inpos] >> 10) & 1023;
     output[2 + outpos] = (input[0 + inpos] >> 20) & 1023;
@@ -381,7 +382,7 @@ fn fast_pack10(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[9 + inpos] >> 12) & 1023;
     output[31 + outpos] = input[9 + inpos] >> 22;
 }
-fn fast_pack11(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack11(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 2047;
     output[1 + outpos] = (input[0 + inpos] >> 11) & 2047;
     output[2 + outpos] = (input[0 + inpos] >> 22) | ((input[1 + inpos] & 1) << (11 - 1));
@@ -416,7 +417,7 @@ fn fast_pack11(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[31 + outpos] = input[10 + inpos] >> 21;
 }
 
-fn fast_pack12(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack12(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 4095;
     output[1 + outpos] = (input[0 + inpos] >> 12) & 4095;
     output[2 + outpos] = (input[0 + inpos] >> 24) | ((input[1 + inpos] & 15) << (12 - 4));
@@ -450,7 +451,7 @@ fn fast_pack12(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[11 + inpos] >> 8) & 4095;
     output[31 + outpos] = input[11 + inpos] >> 20;
 }
-fn fast_pack13(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack13(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 8191;
     output[1 + outpos] = (input[0 + inpos] >> 13) & 8191;
     output[2 + outpos] = (input[0 + inpos] >> 26) | ((input[1 + inpos] & 127) << (13 - 7));
@@ -484,7 +485,7 @@ fn fast_pack13(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[12 + inpos] >> 6) & 8191;
     output[31 + outpos] = input[12 + inpos] >> 19;
 }
-fn fast_pack14(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack14(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 16383;
     output[1 + outpos] = (input[0 + inpos] >> 14) & 16383;
     output[2 + outpos] = (input[0 + inpos] >> 28) | ((input[1 + inpos] & 1023) << (14 - 10));
@@ -518,7 +519,7 @@ fn fast_pack14(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[13 + inpos] >> 4) & 16383;
     output[31 + outpos] = input[13 + inpos] >> 18;
 }
-fn fast_pack15(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack15(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 32767;
     output[1 + outpos] = (input[0 + inpos] >> 15) & 32767;
     output[2 + outpos] = (input[0 + inpos] >> 30) | ((input[1 + inpos] & 8191) << (15 - 13));
@@ -552,7 +553,7 @@ fn fast_pack15(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[14 + inpos] >> 2) & 32767;
     output[31 + outpos] = input[14 + inpos] >> 17;
 }
-fn fast_pack16(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack16(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 65535;
     output[1 + outpos] = input[0 + inpos] >> 16;
     output[2 + outpos] = (input[1 + inpos] >> 0) & 65535;
@@ -586,7 +587,7 @@ fn fast_pack16(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[15 + inpos] >> 0) & 65535;
     output[31 + outpos] = input[15 + inpos] >> 16;
 }
-fn fast_pack17(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack17(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 131071;
     output[1 + outpos] = (input[0 + inpos] >> 17) | ((input[1 + inpos] & 3) << (17 - 2));
     output[2 + outpos] = (input[1 + inpos] >> 2) & 131071;
@@ -620,7 +621,7 @@ fn fast_pack17(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[15 + inpos] >> 30) | ((input[16 + inpos] & 32767) << (17 - 15));
     output[31 + outpos] = input[16 + inpos] >> 15;
 }
-fn fast_pack18(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack18(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 262143;
     output[1 + outpos] = (input[0 + inpos] >> 18) | ((input[1 + inpos] & 15) << (18 - 4));
     output[2 + outpos] = (input[1 + inpos] >> 4) & 262143;
@@ -654,7 +655,7 @@ fn fast_pack18(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[16 + inpos] >> 28) | ((input[17 + inpos] & 16383) << (18 - 14));
     output[31 + outpos] = input[17 + inpos] >> 14;
 }
-fn fast_pack19(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack19(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 524287;
     output[1 + outpos] = (input[0 + inpos] >> 19) | ((input[1 + inpos] & 63) << (19 - 6));
     output[2 + outpos] = (input[1 + inpos] >> 6) & 524287;
@@ -688,7 +689,7 @@ fn fast_pack19(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[17 + inpos] >> 26) | ((input[18 + inpos] & 8191) << (19 - 13));
     output[31 + outpos] = input[18 + inpos] >> 13;
 }
-fn fast_pack20(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack20(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1048575;
     output[1 + outpos] = (input[0 + inpos] >> 20) | ((input[1 + inpos] & 255) << (20 - 8));
     output[2 + outpos] = (input[1 + inpos] >> 8) & 1048575;
@@ -722,7 +723,7 @@ fn fast_pack20(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[18 + inpos] >> 24) | ((input[19 + inpos] & 4095) << (20 - 12));
     output[31 + outpos] = input[19 + inpos] >> 12;
 }
-fn fast_pack21(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack21(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 2097151;
     output[1 + outpos] = (input[0 + inpos] >> 21) | ((input[1 + inpos] & 1023) << (21 - 10));
     output[2 + outpos] = (input[1 + inpos] >> 10) & 2097151;
@@ -756,7 +757,7 @@ fn fast_pack21(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[19 + inpos] >> 22) | ((input[20 + inpos] & 2047) << (21 - 11));
     output[31 + outpos] = input[20 + inpos] >> 11;
 }
-fn fast_pack22(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack22(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 4194303;
     output[1 + outpos] = (input[0 + inpos] >> 22) | ((input[1 + inpos] & 4095) << (22 - 12));
     output[2 + outpos] = (input[1 + inpos] >> 12) | ((input[2 + inpos] & 3) << (22 - 2));
@@ -790,7 +791,7 @@ fn fast_pack22(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[20 + inpos] >> 20) | ((input[21 + inpos] & 1023) << (22 - 10));
     output[31 + outpos] = input[21 + inpos] >> 10;
 }
-fn fast_pack23(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack23(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 8388607;
     output[1 + outpos] = (input[0 + inpos] >> 23) | ((input[1 + inpos] & 16383) << (23 - 14));
     output[2 + outpos] = (input[1 + inpos] >> 14) | ((input[2 + inpos] & 31) << (23 - 5));
@@ -824,7 +825,7 @@ fn fast_pack23(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[21 + inpos] >> 18) | ((input[22 + inpos] & 511) << (23 - 9));
     output[31 + outpos] = input[22 + inpos] >> 9;
 }
-fn fast_pack24(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack24(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 16777215;
     output[1 + outpos] = (input[0 + inpos] >> 24) | ((input[1 + inpos] & 65535) << (24 - 16));
     output[2 + outpos] = (input[1 + inpos] >> 16) | ((input[2 + inpos] & 255) << (24 - 8));
@@ -858,7 +859,7 @@ fn fast_pack24(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[22 + inpos] >> 16) | ((input[23 + inpos] & 255) << (24 - 8));
     output[31 + outpos] = input[23 + inpos] >> 8;
 }
-fn fast_pack25(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack25(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 33554431;
     output[1 + outpos] = (input[0 + inpos] >> 25) | ((input[1 + inpos] & 262143) << (25 - 18));
     output[2 + outpos] = (input[1 + inpos] >> 18) | ((input[2 + inpos] & 2047) << (25 - 11));
@@ -892,7 +893,7 @@ fn fast_pack25(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[23 + inpos] >> 14) | ((input[24 + inpos] & 127) << (25 - 7));
     output[31 + outpos] = input[24 + inpos] >> 7;
 }
-fn fast_pack26(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack26(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 67108863;
     output[1 + outpos] = (input[0 + inpos] >> 26) | ((input[1 + inpos] & 1048575) << (26 - 20));
     output[2 + outpos] = (input[1 + inpos] >> 20) | ((input[2 + inpos] & 16383) << (26 - 14));
@@ -926,7 +927,7 @@ fn fast_pack26(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[24 + inpos] >> 12) | ((input[25 + inpos] & 63) << (26 - 6));
     output[31 + outpos] = input[25 + inpos] >> 6;
 }
-fn fast_pack27(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack27(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 134217727;
     output[1 + outpos] = (input[0 + inpos] >> 27) | ((input[1 + inpos] & 4194303) << (27 - 22));
     output[2 + outpos] = (input[1 + inpos] >> 22) | ((input[2 + inpos] & 131071) << (27 - 17));
@@ -960,7 +961,7 @@ fn fast_pack27(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[25 + inpos] >> 10) | ((input[26 + inpos] & 31) << (27 - 5));
     output[31 + outpos] = input[26 + inpos] >> 5;
 }
-fn fast_pack28(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack28(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 268435455;
     output[1 + outpos] = (input[0 + inpos] >> 28) | ((input[1 + inpos] & 16777215) << (28 - 24));
     output[2 + outpos] = (input[1 + inpos] >> 24) | ((input[2 + inpos] & 1048575) << (28 - 20));
@@ -994,7 +995,7 @@ fn fast_pack28(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[26 + inpos] >> 8) | ((input[27 + inpos] & 15) << (28 - 4));
     output[31 + outpos] = input[27 + inpos] >> 4;
 }
-fn fast_pack29(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack29(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 536870911;
     output[1 + outpos] = (input[0 + inpos] >> 29) | ((input[1 + inpos] & 67108863) << (29 - 26));
     output[2 + outpos] = (input[1 + inpos] >> 26) | ((input[2 + inpos] & 8388607) << (29 - 23));
@@ -1029,7 +1030,7 @@ fn fast_pack29(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[27 + inpos] >> 6) | ((input[28 + inpos] & 7) << (29 - 3));
     output[31 + outpos] = input[28 + inpos] >> 3;
 }
-fn fast_pack30(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack30(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1073741823;
     output[1 + outpos] = (input[0 + inpos] >> 30) | ((input[1 + inpos] & 268435455) << (30 - 28));
     output[2 + outpos] = (input[1 + inpos] >> 28) | ((input[2 + inpos] & 67108863) << (30 - 26));
@@ -1064,7 +1065,7 @@ fn fast_pack30(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[28 + inpos] >> 4) | ((input[29 + inpos] & 3) << (30 - 2));
     output[31 + outpos] = input[29 + inpos] >> 2;
 }
-fn fast_pack31(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack31(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 2147483647;
     output[1 + outpos] = (input[0 + inpos] >> 31) | ((input[1 + inpos] & 1073741823) << (31 - 30));
     output[2 + outpos] = (input[1 + inpos] >> 30) | ((input[2 + inpos] & 536870911) << (31 - 29));
@@ -1075,7 +1076,7 @@ fn fast_pack31(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[7 + outpos] = (input[6 + inpos] >> 25) | ((input[7 + inpos] & 16777215) << (31 - 24));
     output[8 + outpos] = (input[7 + inpos] >> 24) | ((input[8 + inpos] & 8388607) << (31 - 23));
     output[9 + outpos] = (input[8 + inpos] >> 23) | ((input[9 + inpos] & 4194303) << (31 - 22));
-    output[10 + outpos] = (input[9 + inpos] >> 22) | ((input[10 + inpos] & 2097151) << (31 - 21));
+    output[320 + outpos] = (input[9 + inpos] >> 22) | ((input[10 + inpos] & 2097151) << (31 - 21));
     output[11 + outpos] = (input[10 + inpos] >> 21) | ((input[11 + inpos] & 1048575) << (31 - 20));
     output[12 + outpos] = (input[11 + inpos] >> 20) | ((input[12 + inpos] & 524287) << (31 - 19));
     output[13 + outpos] = (input[12 + inpos] >> 19) | ((input[13 + inpos] & 262143) << (31 - 18));
@@ -1098,11 +1099,11 @@ fn fast_pack31(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usiz
     output[30 + outpos] = (input[29 + inpos] >> 2) | ((input[30 + inpos] & 1) << (31 - 1));
     output[31 + outpos] = input[30 + inpos] >> 1;
 }
-fn fast_pack32(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_pack32(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[outpos..outpos + 32].copy_from_slice(&input[inpos..inpos + 32]);
 }
 
-pub fn fast_unpack(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
+pub fn fast_unpack(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
     match bit {
         0 => fast_unpack0(output, outpos as usize),
         1 => fast_unpack1(input, inpos, output, outpos),
@@ -1147,7 +1148,7 @@ fn fast_unpack0(output: &mut [i32], outpos: usize) {
     }
 }
 
-fn fast_unpack1(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack1(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1;
     output[1 + outpos] = (input[0 + inpos] >> 1) & 1;
     output[2 + outpos] = (input[0 + inpos] >> 2) & 1;
@@ -1182,7 +1183,7 @@ fn fast_unpack1(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[0 + inpos] >> 31;
 }
 
-fn fast_unpack2(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack2(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 3;
     output[1 + outpos] = (input[0 + inpos] >> 2) & 3;
     output[2 + outpos] = (input[0 + inpos] >> 4) & 3;
@@ -1217,7 +1218,7 @@ fn fast_unpack2(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[1 + inpos] >> 30;
 }
 
-fn fast_unpack3(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack3(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 7;
     output[1 + outpos] = (input[0 + inpos] >> 3) & 7;
     output[2 + outpos] = (input[0 + inpos] >> 6) & 7;
@@ -1252,7 +1253,7 @@ fn fast_unpack3(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[2 + inpos] >> 29;
 }
 
-fn fast_unpack4(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack4(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 15;
     output[1 + outpos] = (input[0 + inpos] >> 4) & 15;
     output[2 + outpos] = (input[0 + inpos] >> 8) & 15;
@@ -1287,7 +1288,7 @@ fn fast_unpack4(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[3 + inpos] >> 28;
 }
 
-fn fast_unpack5(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack5(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 31;
     output[1 + outpos] = (input[0 + inpos] >> 5) & 31;
     output[2 + outpos] = (input[0 + inpos] >> 10) & 31;
@@ -1322,7 +1323,7 @@ fn fast_unpack5(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[4 + inpos] >> 27;
 }
 
-fn fast_unpack6(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack6(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 63;
     output[1 + outpos] = (input[0 + inpos] >> 6) & 63;
     output[2 + outpos] = (input[0 + inpos] >> 12) & 63;
@@ -1357,7 +1358,7 @@ fn fast_unpack6(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[5 + inpos] >> 26;
 }
 
-fn fast_unpack7(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack7(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 127;
     output[1 + outpos] = (input[0 + inpos] >> 7) & 127;
     output[2 + outpos] = (input[0 + inpos] >> 14) & 127;
@@ -1392,7 +1393,7 @@ fn fast_unpack7(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[6 + inpos] >> 25;
 }
 
-fn fast_unpack8(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack8(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 255;
     output[1 + outpos] = (input[0 + inpos] >> 8) & 255;
     output[2 + outpos] = (input[0 + inpos] >> 16) & 255;
@@ -1427,7 +1428,7 @@ fn fast_unpack8(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[7 + inpos] >> 24;
 }
 
-fn fast_unpack9(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack9(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 511;
     output[1 + outpos] = (input[0 + inpos] >> 9) & 511;
     output[2 + outpos] = (input[0 + inpos] >> 18) & 511;
@@ -1462,7 +1463,7 @@ fn fast_unpack9(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usi
     output[31 + outpos] = input[8 + inpos] >> 23;
 }
 
-fn fast_unpack10(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack10(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1023;
     output[1 + outpos] = (input[0 + inpos] >> 10) & 1023;
     output[2 + outpos] = (input[0 + inpos] >> 20) & 1023;
@@ -1497,7 +1498,7 @@ fn fast_unpack10(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[9 + inpos] >> 22;
 }
 
-fn fast_unpack11(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack11(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 2047;
     output[1 + outpos] = (input[0 + inpos] >> 11) & 2047;
     output[2 + outpos] = (input[0 + inpos] >> 22) | ((input[1 + inpos] & 1) << (11 - 1));
@@ -1532,7 +1533,7 @@ fn fast_unpack11(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[10 + inpos] >> 21;
 }
 
-fn fast_unpack12(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack12(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 4095;
     output[1 + outpos] = (input[0 + inpos] >> 12) & 4095;
     output[2 + outpos] = (input[0 + inpos] >> 24) | ((input[1 + inpos] & 15) << (12 - 4));
@@ -1567,7 +1568,7 @@ fn fast_unpack12(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[11 + inpos] >> 20;
 }
 
-fn fast_unpack13(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack13(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 8191;
     output[1 + outpos] = (input[0 + inpos] >> 13) & 8191;
     output[2 + outpos] = (input[0 + inpos] >> 26) | ((input[1 + inpos] & 127) << (13 - 7));
@@ -1602,7 +1603,7 @@ fn fast_unpack13(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[12 + inpos] >> 19;
 }
 
-fn fast_unpack14(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack14(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 16383;
     output[1 + outpos] = (input[0 + inpos] >> 14) & 16383;
     output[2 + outpos] = (input[0 + inpos] >> 28) | ((input[1 + inpos] & 1023) << (14 - 10));
@@ -1637,7 +1638,7 @@ fn fast_unpack14(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[13 + inpos] >> 18;
 }
 
-fn fast_unpack15(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack15(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 32767;
     output[1 + outpos] = (input[0 + inpos] >> 15) & 32767;
     output[2 + outpos] = (input[0 + inpos] >> 30) | ((input[1 + inpos] & 8191) << (15 - 13));
@@ -1672,7 +1673,7 @@ fn fast_unpack15(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[14 + inpos] >> 17;
 }
 
-fn fast_unpack16(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack16(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 65535;
     output[1 + outpos] = input[0 + inpos] >> 16;
     output[2 + outpos] = (input[1 + inpos] >> 0) & 65535;
@@ -1707,7 +1708,7 @@ fn fast_unpack16(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[15 + inpos] >> 16;
 }
 
-fn fast_unpack17(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack17(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 131071;
     output[1 + outpos] = (input[0 + inpos] >> 17) | ((input[1 + inpos] & 3) << (17 - 2));
     output[2 + outpos] = (input[1 + inpos] >> 2) & 131071;
@@ -1742,7 +1743,7 @@ fn fast_unpack17(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[16 + inpos] >> 15;
 }
 
-fn fast_unpack18(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack18(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 262143;
     output[1 + outpos] = (input[0 + inpos] >> 18) | ((input[1 + inpos] & 15) << (18 - 4));
     output[2 + outpos] = (input[1 + inpos] >> 4) & 262143;
@@ -1777,7 +1778,7 @@ fn fast_unpack18(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[17 + inpos] >> 14;
 }
 
-fn fast_unpack19(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack19(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 524287;
     output[1 + outpos] = (input[0 + inpos] >> 19) | ((input[1 + inpos] & 63) << (19 - 6));
     output[2 + outpos] = (input[1 + inpos] >> 6) & 524287;
@@ -1812,7 +1813,7 @@ fn fast_unpack19(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[18 + inpos] >> 13;
 }
 
-fn fast_unpack20(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack20(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1048575;
     output[1 + outpos] = (input[0 + inpos] >> 20) | ((input[1 + inpos] & 255) << (20 - 8));
     output[2 + outpos] = (input[1 + inpos] >> 8) & 1048575;
@@ -1847,7 +1848,7 @@ fn fast_unpack20(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[19 + inpos] >> 12;
 }
 
-fn fast_unpack21(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack21(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 2097151;
     output[1 + outpos] = (input[0 + inpos] >> 21) | ((input[1 + inpos] & 1023) << (21 - 10));
     output[2 + outpos] = (input[1 + inpos] >> 10) & 2097151;
@@ -1882,7 +1883,7 @@ fn fast_unpack21(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[20 + inpos] >> 11;
 }
 
-fn fast_unpack22(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack22(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 4194303;
     output[1 + outpos] = (input[0 + inpos] >> 22) | ((input[1 + inpos] & 4095) << (22 - 12));
     output[2 + outpos] = (input[1 + inpos] >> 12) | ((input[2 + inpos] & 3) << (22 - 2));
@@ -1917,7 +1918,7 @@ fn fast_unpack22(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[21 + inpos] >> 10;
 }
 
-fn fast_unpack23(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack23(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 8388607;
     output[1 + outpos] = (input[0 + inpos] >> 23) | ((input[1 + inpos] & 16383) << (23 - 14));
     output[2 + outpos] = (input[1 + inpos] >> 14) | ((input[2 + inpos] & 31) << (23 - 5));
@@ -1952,7 +1953,7 @@ fn fast_unpack23(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[22 + inpos] >> 9;
 }
 
-fn fast_unpack24(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack24(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 16777215;
     output[1 + outpos] = (input[0 + inpos] >> 24) | ((input[1 + inpos] & 65535) << (24 - 16));
     output[2 + outpos] = (input[1 + inpos] >> 16) | ((input[2 + inpos] & 255) << (24 - 8));
@@ -1987,7 +1988,7 @@ fn fast_unpack24(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[23 + inpos] >> 8;
 }
 
-fn fast_unpack25(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack25(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 33554431;
     output[1 + outpos] = (input[0 + inpos] >> 25) | ((input[1 + inpos] & 262143) << (25 - 18));
     output[2 + outpos] = (input[1 + inpos] >> 18) | ((input[2 + inpos] & 2047) << (25 - 11));
@@ -2022,7 +2023,7 @@ fn fast_unpack25(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[24 + inpos] >> 7;
 }
 
-fn fast_unpack26(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack26(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 67108863;
     output[1 + outpos] = (input[0 + inpos] >> 26) | ((input[1 + inpos] & 1048575) << (26 - 20));
     output[2 + outpos] = (input[1 + inpos] >> 20) | ((input[2 + inpos] & 16383) << (26 - 14));
@@ -2057,7 +2058,7 @@ fn fast_unpack26(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[25 + inpos] >> 6;
 }
 
-fn fast_unpack27(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack27(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 134217727;
     output[1 + outpos] = (input[0 + inpos] >> 27) | ((input[1 + inpos] & 4194303) << (27 - 22));
     output[2 + outpos] = (input[1 + inpos] >> 22) | ((input[2 + inpos] & 131071) << (27 - 17));
@@ -2092,7 +2093,7 @@ fn fast_unpack27(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[26 + inpos] >> 5;
 }
 
-fn fast_unpack28(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack28(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 268435455;
     output[1 + outpos] = (input[0 + inpos] >> 28) | ((input[1 + inpos] & 16777215) << (28 - 24));
     output[2 + outpos] = (input[1 + inpos] >> 24) | ((input[2 + inpos] & 1048575) << (28 - 20));
@@ -2127,7 +2128,7 @@ fn fast_unpack28(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[27 + inpos] >> 4;
 }
 
-fn fast_unpack29(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack29(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 536870911;
     output[1 + outpos] = (input[0 + inpos] >> 29) | ((input[1 + inpos] & 67108863) << (29 - 26));
     output[2 + outpos] = (input[1 + inpos] >> 26) | ((input[2 + inpos] & 8388607) << (29 - 23));
@@ -2163,7 +2164,7 @@ fn fast_unpack29(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[28 + inpos] >> 3;
 }
 
-fn fast_unpack30(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack30(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 1073741823;
     output[1 + outpos] = (input[0 + inpos] >> 30) | ((input[1 + inpos] & 268435455) << (30 - 28));
     output[2 + outpos] = (input[1 + inpos] >> 28) | ((input[2 + inpos] & 67108863) << (30 - 26));
@@ -2199,7 +2200,7 @@ fn fast_unpack30(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[29 + inpos] >> 2;
 }
 
-fn fast_unpack31(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack31(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[0 + outpos] = (input[0 + inpos] >> 0) & 2147483647;
     output[1 + outpos] = (input[0 + inpos] >> 31) | ((input[1 + inpos] & 1073741823) << (31 - 30));
     output[2 + outpos] = (input[1 + inpos] >> 30) | ((input[2 + inpos] & 536870911) << (31 - 29));
@@ -2234,6 +2235,6 @@ fn fast_unpack31(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: us
     output[31 + outpos] = input[30 + inpos] >> 1;
 }
 
-fn fast_unpack32(input: &mut [i32], inpos: usize, output: &mut [i32], outpos: usize) {
+fn fast_unpack32(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[outpos..outpos + 32].copy_from_slice(&input[inpos..inpos + 32]);
 }

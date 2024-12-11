@@ -6,11 +6,7 @@
 [![crates.io version](https://img.shields.io/crates/l/fastpfor.svg)](https://github.com/jjcfrancisco/fastpfor/blob/main/LICENSE-APACHE)
 [![CI build](https://github.com/jjcfrancisco/fastpfor/actions/workflows/ci.yml/badge.svg)](https://github.com/jjcfrancisco/fastpfor/actions)
 
-In development, not ready for use. A port of Go library [FastPfor](https://github.com/zentures/encoding).
-
-# To do:
-- [ ] Add tests from other projects
-- [x] Change to [thiserror](https://crates.io/crates/thiserror)
+FastPFOR library written in Rust. Currently in development.
 
 ## License
 
