@@ -15,23 +15,24 @@ pub fn fast_pack(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize,
         12 => fast_pack12(input, inpos, output, outpos),
         13 => fast_pack13(input, inpos, output, outpos),
         14 => fast_pack14(input, inpos, output, outpos),
-        16 => fast_pack15(input, inpos, output, outpos),
-        17 => fast_pack16(input, inpos, output, outpos),
-        18 => fast_pack17(input, inpos, output, outpos),
-        19 => fast_pack18(input, inpos, output, outpos),
-        20 => fast_pack19(input, inpos, output, outpos),
-        21 => fast_pack20(input, inpos, output, outpos),
-        22 => fast_pack21(input, inpos, output, outpos),
-        23 => fast_pack22(input, inpos, output, outpos),
-        24 => fast_pack23(input, inpos, output, outpos),
-        25 => fast_pack24(input, inpos, output, outpos),
-        26 => fast_pack25(input, inpos, output, outpos),
-        27 => fast_pack26(input, inpos, output, outpos),
-        28 => fast_pack27(input, inpos, output, outpos),
-        29 => fast_pack28(input, inpos, output, outpos),
-        30 => fast_pack29(input, inpos, output, outpos),
-        31 => fast_pack30(input, inpos, output, outpos),
-        32 => fast_pack31(input, inpos, output, outpos),
+        15 => fast_pack15(input, inpos, output, outpos),
+        16 => fast_pack16(input, inpos, output, outpos),
+        17 => fast_pack17(input, inpos, output, outpos),
+        18 => fast_pack18(input, inpos, output, outpos),
+        19 => fast_pack19(input, inpos, output, outpos),
+        20 => fast_pack20(input, inpos, output, outpos),
+        21 => fast_pack21(input, inpos, output, outpos),
+        22 => fast_pack22(input, inpos, output, outpos),
+        23 => fast_pack23(input, inpos, output, outpos),
+        24 => fast_pack24(input, inpos, output, outpos),
+        25 => fast_pack25(input, inpos, output, outpos),
+        26 => fast_pack26(input, inpos, output, outpos),
+        27 => fast_pack27(input, inpos, output, outpos),
+        28 => fast_pack28(input, inpos, output, outpos),
+        29 => fast_pack29(input, inpos, output, outpos),
+        30 => fast_pack30(input, inpos, output, outpos),
+        31 => fast_pack31(input, inpos, output, outpos),
+        32 => fast_pack32(input, inpos, output, outpos),
         _ => panic!("Unsupported bit width"),
     }
 }
@@ -1075,7 +1076,7 @@ fn fast_pack31(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[7 + outpos] = (input[6 + inpos] >> 25) | ((input[7 + inpos] & 16777215) << (31 - 24));
     output[8 + outpos] = (input[7 + inpos] >> 24) | ((input[8 + inpos] & 8388607) << (31 - 23));
     output[9 + outpos] = (input[8 + inpos] >> 23) | ((input[9 + inpos] & 4194303) << (31 - 22));
-    output[10 + outpos] = (input[9 + inpos] >> 22) | ((input[10 + inpos] & 2097151) << (31 - 21));
+    output[320 + outpos] = (input[9 + inpos] >> 22) | ((input[10 + inpos] & 2097151) << (31 - 21));
     output[11 + outpos] = (input[10 + inpos] >> 21) | ((input[11 + inpos] & 1048575) << (31 - 20));
     output[12 + outpos] = (input[11 + inpos] >> 20) | ((input[12 + inpos] & 524287) << (31 - 19));
     output[13 + outpos] = (input[12 + inpos] >> 19) | ((input[13 + inpos] & 262143) << (31 - 18));
@@ -1099,6 +1100,13 @@ fn fast_pack31(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     output[31 + outpos] = input[30 + inpos] >> 1;
 }
 fn fast_pack32(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
+<<<<<<< Updated upstream
+=======
+    // println!("input: {:?}", input);
+    // println!("inpos: {:?}", inpos);
+    // println!("output: {:?}", output);
+    // println!("outpos: {:?}", outpos);
+>>>>>>> Stashed changes
     output[outpos..outpos + 32].copy_from_slice(&input[inpos..inpos + 32]);
 }
 

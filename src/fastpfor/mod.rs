@@ -45,9 +45,9 @@ impl FastPFOR {
             //}
             bytes_container: bytebuffer::ByteBuffer::new(3 * page_size / BLOCK_SIZE + page_size),
             data_to_be_packed: {
-                let mut data_to_be_packed: Vec<Vec<i32>> = vec![Vec::new(); 33];
+                let mut data_to_be_packed: Vec<Vec<i32>> = vec![vec![0; page_size as usize / 32 * 4]; 33];
                 for _ in 1..data_to_be_packed.len() {
-                    data_to_be_packed.push(vec![1; DEFAULT_PAGE_SIZE as usize / 32 * 4]);
+                    data_to_be_packed.push(vec![0; page_size as usize / 32 * 4]);
                 }
                 data_to_be_packed
             },
@@ -165,6 +165,31 @@ impl FastPFOR {
         }
         output[tmp_out_pos as usize] = bitmap;
         tmp_out_pos += 1;
+
+        for k in 2..=32 {
+            if self.data_pointers[k] != 0 {
+                output[tmp_out_pos as usize] = self.data_pointers[k] as i32;
+                tmp_out_pos += 1;
+                let mut j = 0;
+                while j < self.data_pointers[k as usize] {
+                    // println!("data_to_be_packed[k]: {:?}", self.data_to_be_packed[k as usize]);
+                    bitpacking::fast_pack(
+                        &self.data_to_be_packed[k as usize],
+                        j,
+                        output,
+                        tmp_out_pos as usize,
+                        k as isize,
+                    );
+                    tmp_out_pos += k as i32;
+                    j += 32;
+                }
+
+                // Overflow adjustment
+                let overflow = j as i32 - self.data_pointers[k as usize] as i32;
+                tmp_out_pos -= (overflow * k as i32) / 32;
+            }
+        }
+        out_pos.set_position(tmp_out_pos as u64);
     }
 
     fn best_b_from_data(&mut self, input: &mut Vec<i32>, pos: i32) {
