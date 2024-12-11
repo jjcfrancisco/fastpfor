@@ -275,7 +275,7 @@ mod tests {
         }
     }
 
-    #[test] 
+    #[test]
     fn test_zero_in_zero_out() {
         let mut c = FastPFOR::new(DEFAULT_PAGE_SIZE);
         let x = vec![0; 0];
@@ -291,5 +291,4 @@ mod tests {
         // c.uncompress(&y, &mut i1, 0, &mut out, &mut outpos).unwrap();
         // assert_eq!(0, outpos.position());
     }
-
 }
