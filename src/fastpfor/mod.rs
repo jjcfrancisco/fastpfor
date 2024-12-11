@@ -252,5 +252,11 @@ mod tests {
                 &mut out_pos,
             )
             .unwrap();
+        let initial_values = vec![256, 1, 4, 2116026624, -2147483648, 1, -1];
+        let zeros_count = 1024 - initial_values.len();
+        let mut out_buf_compressed: Vec<i32> = initial_values;
+        out_buf_compressed.extend(vec![0; zeros_count]);
+
+        assert_eq!(out_buf_compressed, out_buf);
     }
 }
