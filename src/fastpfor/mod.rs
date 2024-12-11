@@ -107,7 +107,7 @@ impl FastPFOR {
             self.bytes_container.put(self.bestbbestcexceptmaxb[1] as u8);
             if self.bestbbestcexceptmaxb[1] > 0 {
                 self.bytes_container.put(self.bestbbestcexceptmaxb[2] as u8);
-                let mut index = self.bestbbestcexceptmaxb[2] - self.bestbbestcexceptmaxb[0];
+                let index = self.bestbbestcexceptmaxb[2] - self.bestbbestcexceptmaxb[0];
                 if self.data_pointers[index as usize] + self.bestbbestcexceptmaxb[1] as usize
                     >= self.data_to_be_packed[index as usize].len()
                 {
