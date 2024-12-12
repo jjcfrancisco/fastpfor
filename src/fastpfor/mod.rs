@@ -1,5 +1,5 @@
 use crate::fastpfor::cursor::IncrementCursor;
-use crate::{FastPForError, Result};
+use crate::Result;
 
 mod bitpacking;
 mod bytebuffer;
@@ -60,7 +60,7 @@ impl FastPFOR {
 
     pub fn compress(
         &mut self,
-        input: &mut Vec<i32>,
+        input: &Vec<i32>,
         in_pos: &mut Cursor<i32>,
         inlength: i32,
         output: &mut Vec<i32>,
@@ -68,7 +68,8 @@ impl FastPFOR {
     ) -> Result<()> {
         let inlength = helpers::greatest_multiple(inlength, BLOCK_SIZE as i32);
         if inlength == 0 {
-            return Err(FastPForError::Compress("inlength = 0.".to_string()));
+            // Return early if there is no data to compress
+            return Ok(());
         }
         output[out_pos.position() as usize] = inlength;
         out_pos.increment();
@@ -85,7 +86,7 @@ impl FastPFOR {
 
     fn encode_page(
         &mut self,
-        input: &mut Vec<i32>,
+        input: &Vec<i32>,
         in_pos: &mut Cursor<i32>,
         thissize: i32,
         output: &mut Vec<i32>,
@@ -193,7 +194,7 @@ impl FastPFOR {
         out_pos.set_position(tmp_out_pos as u64);
     }
 
-    fn best_b_from_data(&mut self, input: &mut Vec<i32>, pos: i32) {
+    fn best_b_from_data(&mut self, input: &Vec<i32>, pos: i32) {
         self.freqs.fill(0);
         let k_end = pos + BLOCK_SIZE;
         for k in pos..k_end {
@@ -256,7 +257,7 @@ mod tests {
         let mut out_pos = Cursor::new(0);
         codec1
             .compress(
-                &mut data,
+                &data,
                 &mut in_pos,
                 BLOCK_SIZE as i32,
                 &mut out_buf,
@@ -267,7 +268,38 @@ mod tests {
         let zeros_count = 1024 - initial_values.len();
         let mut out_buf_compressed: Vec<i32> = initial_values;
         out_buf_compressed.extend(vec![0; zeros_count]);
-
         assert_eq!(out_buf_compressed, out_buf);
+
+        // Needs uncompress
+    }
+
+    #[test]
+    fn test_spurious() {
+        let mut c = FastPFOR::new(DEFAULT_PAGE_SIZE);
+        let x = vec![0; 1024];
+        let mut y = vec![0; 0];
+        let mut i0 = Cursor::new(0);
+        let mut i1 = Cursor::new(0);
+        for inlength in 0..32 {
+            c.compress(&x, &mut i0, inlength, &mut y, &mut i1).unwrap();
+            assert_eq!(0, i1.position());
+        }
+    }
+
+    #[test]
+    fn test_zero_in_zero_out() {
+        let mut c = FastPFOR::new(DEFAULT_PAGE_SIZE);
+        let x = vec![0; 0];
+        let mut y = vec![0; 0];
+        let mut i0 = Cursor::new(0);
+        let mut i1 = Cursor::new(0);
+        c.compress(&x, &mut i0, 0, &mut y, &mut i1).unwrap();
+        assert_eq!(0, i1.position());
+
+        // Needs uncompress
+        // let mut out = vec![0; 0];
+        // let mut outpos = Cursor::new(0);
+        // c.uncompress(&y, &mut i1, 0, &mut out, &mut outpos).unwrap();
+        // assert_eq!(0, outpos.position());
     }
 }
