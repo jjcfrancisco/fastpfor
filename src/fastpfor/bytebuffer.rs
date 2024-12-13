@@ -87,16 +87,16 @@ impl ByteBuffer {
             panic!("Buffer length is not a multiple of 4");
         }
 
-        // let test = self.buffer.chunks(4).map(|chunk| {
-        //     let mut bytes = [0; 4];
-        //     bytes.copy_from_slice(chunk);
-        //     i32::from_le_bytes(bytes)
-        // });
-        //
-        // println!("{:?}", test.collect::<Vec<i32>>());
-
         IntBuffer {
-            buffer: cast_slice(&self.buffer).to_vec(),
+            buffer: {
+                let mut result = vec![];
+                for chunk in self.buffer.chunks(4) {
+                    let mut bytes = [0; 4];
+                    bytes.copy_from_slice(chunk);
+                    result.push(i32::from_le_bytes(bytes));
+                }
+                result
+            },
         }
     }
 }
@@ -108,5 +108,13 @@ impl IntBuffer {
             panic!("Buffer overflow");
         }
         dst[offset..offset + length].copy_from_slice(&self.buffer[..length]);
+    }
+
+    pub fn put(&mut self, src: &[i32], offset: usize, length: i32) {
+        if offset + length as usize > src.len() {
+            panic!("Buffer underflow");
+        }
+        self.buffer
+            .extend_from_slice(&src[offset..offset + length as usize]);
     }
 }

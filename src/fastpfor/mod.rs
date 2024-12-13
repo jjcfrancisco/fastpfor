@@ -80,7 +80,6 @@ impl FastPFOR {
             let this_size = std::cmp::min(self.page_size, final_inpos - pos);
             self.encode_page(input, in_pos, this_size, output, out_pos);
         }
-
         Ok(())
     }
 
@@ -156,8 +155,11 @@ impl FastPFOR {
         let how_many_ints = self.bytes_container.position() / 4;
         self.bytes_container.flip();
 
-        let int_buffer = self.bytes_container.as_int_buffer();
-        int_buffer.get(output, tmp_out_pos as usize, how_many_ints as usize);
+        self.bytes_container.as_int_buffer().get(
+            output,
+            tmp_out_pos as usize,
+            how_many_ints as usize,
+        );
         tmp_out_pos += how_many_ints;
         let mut bitmap = 0;
         for k in 2..=32 {
@@ -233,14 +235,138 @@ impl FastPFOR {
 
     pub fn uncompress(
         &mut self,
-        input: &mut Vec<i32>,
+        input: &Vec<i32>,
         in_pos: &mut Cursor<i32>,
+        inlength: i32,
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
     ) -> Result<()> {
+        if inlength == 0 {
+            // Return early if there is no data to compress
+            return Ok(());
+        }
+        let outlength = input[in_pos.position() as usize];
+        in_pos.increment();
+        let mynvalue = helpers::greatest_multiple(outlength, BLOCK_SIZE);
+        let final_out = out_pos.position() as i32 + mynvalue;
+        while out_pos.position() as i32 != final_out {
+            let this_size = std::cmp::min(self.page_size, final_out - out_pos.position() as i32);
+            self.decode_page(input, in_pos, output, out_pos, this_size);
+        }
         Ok(())
     }
 
+    fn decode_page(
+        &mut self,
+        input: &Vec<i32>,
+        in_pos: &mut Cursor<i32>,
+        output: &mut Vec<i32>,
+        out_pos: &mut Cursor<i32>,
+        thissize: i32,
+    ) {
+        let init_pos = in_pos.position() as i32;
+        let where_meta = input[in_pos.position() as usize];
+        in_pos.increment();
+        let mut inexcept = init_pos + where_meta;
+        let bytesize = input[inexcept as usize];
+        inexcept += 1;
+        self.bytes_container.clear();
+        self.bytes_container
+            .as_int_buffer()
+            .put(input, inexcept as usize, (bytesize + 3) / 4);
+        inexcept += (bytesize + 3) / 4;
+
+        let bitmap = input[inexcept as usize];
+        inexcept += 1;
+
+        for k in 2..=32 {
+            if (bitmap & (1 << (k - 1))) != 0 {
+                let size = input[inexcept as usize];
+                inexcept += 1;
+                let rounded_up = helpers::greatest_multiple(size + 31, 32);
+                if self.data_to_be_packed[k as usize].len() < rounded_up as usize {
+                    self.data_to_be_packed[k as usize] = vec![0; rounded_up as usize];
+                }
+                if inexcept + rounded_up / 32 * k <= input.len() as i32 {
+                    let mut j = 0;
+                    while j < size {
+                        bitpacking::fast_unpack(
+                            input,
+                            inexcept as usize,
+                            &mut self.data_to_be_packed[k as usize],
+                            j as usize,
+                            k as isize,
+                        );
+                        inexcept += k;
+                        j += 32;
+                    }
+                    let overflow = j - size;
+                    inexcept -= (overflow * k) / 32;
+                } else {
+                    let mut j = 0;
+                    let mut buf = vec![0; rounded_up as usize / 32 * k as usize];
+                    let init_inexcept = inexcept;
+                    // Ensure length is the same as the buffer
+                    let length = input.len() - init_inexcept as usize;
+                    buf[..length].copy_from_slice(&input[init_inexcept as usize..]);
+                    while j < size {
+                        bitpacking::fast_unpack(
+                            &buf,
+                            (inexcept - init_inexcept) as usize,
+                            &mut self.data_to_be_packed[k as usize],
+                            j as usize,
+                            k as isize,
+                        );
+                        inexcept += k;
+                        j += 32;
+                    }
+                    let overflow = j - size;
+                    inexcept -= (overflow * k) / 32;
+                }
+            }
+        }
+
+        self.data_pointers.fill(0);
+        let mut tmp_out_pos = out_pos.position() as i32;
+        let mut tmp_in_pos = in_pos.position() as i32;
+
+        let run_end = thissize / BLOCK_SIZE;
+        for _ in 0..run_end {
+            let b = self.bytes_container.get() as i32;
+            let cexcept = self.bytes_container.get() & 0xFF;
+            for k in (0..BLOCK_SIZE).step_by(32) {
+                bitpacking::fast_unpack(
+                    &input,
+                    tmp_in_pos as usize,
+                    output,
+                    (tmp_out_pos + k) as usize,
+                    b as isize,
+                );
+                tmp_in_pos += b;
+            }
+            if cexcept > 0 {
+                let maxbits = self.bytes_container.get() as i32;
+                let index = maxbits - b;
+                if index == 1 {
+                    for _ in 0..cexcept {
+                        let pos = self.bytes_container.get() & 0xFF;
+                        output[pos as usize + tmp_out_pos as usize] |= 1 << b;
+                    }
+                } else {
+                    for _ in 0..cexcept {
+                        let pos = self.bytes_container.get() & 0xFF;
+                        let except_value = self.data_to_be_packed[index as usize]
+                            [self.data_pointers[index as usize]];
+                        output[pos as usize + tmp_out_pos as usize] |= except_value << b;
+                        self.data_pointers[index as usize] += 1;
+                    }
+                }
+            }
+            tmp_out_pos += BLOCK_SIZE;
+        }
+        out_pos.set_position(tmp_out_pos as u64);
+        in_pos.set_position(inexcept as u64);
+    }
 }
 
 #[cfg(test)]
@@ -250,6 +376,7 @@ mod tests {
     #[test]
     fn fastpfor_test() {
         let mut codec1 = FastPFOR::new(DEFAULT_PAGE_SIZE);
+        let mut codec2 = FastPFOR::new(DEFAULT_PAGE_SIZE);
         let mut data = vec![0; BLOCK_SIZE as usize];
         data[126] = -1;
         let mut out_buf = vec![0; data.len() * 4];
@@ -259,18 +386,37 @@ mod tests {
             .compress(
                 &data,
                 &mut in_pos,
-                BLOCK_SIZE as i32,
+                data.len() as i32,
                 &mut out_buf,
                 &mut out_pos,
             )
             .unwrap();
+        let comp = out_buf[..out_pos.position() as usize].to_vec();
         let initial_values = vec![256, 1, 4, 2116026624, -2147483648, 1, -1];
         let zeros_count = 1024 - initial_values.len();
         let mut out_buf_compressed: Vec<i32> = initial_values;
         out_buf_compressed.extend(vec![0; zeros_count]);
         assert_eq!(out_buf_compressed, out_buf);
 
-        // Needs uncompress
+        let mut out_buf_uncomp = vec![0; data.len() * 4];
+        let mut in_pos_uncomp = Cursor::new(0);
+        let mut out_pos_uncomp = Cursor::new(0);
+        codec2
+            .uncompress(
+                &comp,
+                &mut in_pos_uncomp,
+                comp.len() as i32,
+                &mut out_buf_uncomp,
+                &mut out_pos_uncomp,
+            )
+            .unwrap();
+        let answer = out_buf[..out_pos.position() as usize].to_vec();
+
+        for k in 0..BLOCK_SIZE {
+            if answer[k as usize] != data[k as usize] {
+                panic!("bug {} {} != {}", k, answer[k as usize], data[k as usize]);
+            }
+        }
     }
 
     #[test]
