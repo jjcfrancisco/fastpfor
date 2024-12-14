@@ -1,8 +1,6 @@
-use bytemuck::cast_slice;
-
 #[derive(Debug)]
 pub struct ByteBuffer {
-    buffer: Vec<u8>,
+    pub buffer: Vec<u8>,
     position: i32,
     limit: i32,
     capacity: i32,
@@ -17,7 +15,7 @@ impl ByteBuffer {
     // Create a new ByteBuffer with the specified capacity
     pub fn new(capacity: i32) -> Self {
         ByteBuffer {
-            buffer: vec![],
+            buffer: vec![0; capacity as usize],
             position: 0,
             limit: capacity,
             capacity,
@@ -110,11 +108,23 @@ impl IntBuffer {
         dst[offset..offset + length].copy_from_slice(&self.buffer[..length]);
     }
 
-    pub fn put(&mut self, src: &[i32], offset: usize, length: i32) {
+    // for (int i = off; i < off + len; i++)
+    //          dst.put(src[i]);
+
+    pub fn put(&mut self, src: &[i32], offset: usize, length: i32) -> Vec<u8> {
         if offset + length as usize > src.len() {
             panic!("Buffer underflow");
-        }
-        self.buffer
-            .extend_from_slice(&src[offset..offset + length as usize]);
+        };
+        let mut result: Vec<u8> = vec![];
+        for i in offset..offset + length as usize {
+            result.extend_from_slice(&src[i].to_le_bytes());
+        };
+        result
+
+        // if offset + length as usize > src.len() {
+        //     panic!("Buffer underflow");
+        // }
+        // self.buffer
+        //     .extend_from_slice(&src[offset..offset + length as usize]);
     }
 }

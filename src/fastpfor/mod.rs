@@ -271,7 +271,7 @@ impl FastPFOR {
         let bytesize = input[inexcept as usize];
         inexcept += 1;
         self.bytes_container.clear();
-        self.bytes_container
+        self.bytes_container.buffer = self.bytes_container
             .as_int_buffer()
             .put(input, inexcept as usize, (bytesize + 3) / 4);
         inexcept += (bytesize + 3) / 4;
@@ -410,7 +410,7 @@ mod tests {
                 &mut out_pos_uncomp,
             )
             .unwrap();
-        let answer = out_buf[..out_pos.position() as usize].to_vec();
+        let answer = out_buf_uncomp[..out_pos_uncomp.position() as usize].to_vec();
 
         for k in 0..BLOCK_SIZE {
             if answer[k as usize] != data[k as usize] {
@@ -443,9 +443,9 @@ mod tests {
         assert_eq!(0, i1.position());
 
         // Needs uncompress
-        // let mut out = vec![0; 0];
-        // let mut outpos = Cursor::new(0);
-        // c.uncompress(&y, &mut i1, 0, &mut out, &mut outpos).unwrap();
-        // assert_eq!(0, outpos.position());
+        let mut out = vec![0; 0];
+        let mut outpos = Cursor::new(0);
+        c.uncompress(&y, &mut i1, 0, &mut out, &mut outpos).unwrap();
+        assert_eq!(0, outpos.position());
     }
 }
