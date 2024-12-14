@@ -29,20 +29,6 @@ impl FastPFOR {
     pub fn new(page_size: i32) -> FastPFOR {
         FastPFOR {
             page_size,
-            // KEEP FOR REFERENCE RE byte_container
-            // Example: Write a u32 value in little-endian
-            //pub fn write_to_container(&mut self, value: u32) {
-            //    self.byte_container.extend(&value.to_le_bytes());
-            //}
-
-            // Example: Read a u32 value in little-endian from a specific offset
-            //pub fn read_from_container(&self, offset: usize) -> u32 {
-            //    u32::from_le_bytes(
-            //        self.byte_container[offset..offset + 4]
-            //            .try_into()
-            //            .expect("Slice must be 4 bytes long"),
-            //    )
-            //}
             bytes_container: bytebuffer::ByteBuffer::new(3 * page_size / BLOCK_SIZE + page_size),
             data_to_be_packed: {
                 let mut data_to_be_packed: Vec<Vec<i32>> =
