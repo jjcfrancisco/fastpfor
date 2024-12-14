@@ -118,7 +118,7 @@ impl IntBuffer {
         let mut result: Vec<u8> = vec![];
         for i in offset..offset + length as usize {
             result.extend_from_slice(&src[i].to_le_bytes());
-        };
+        }
         result
 
         // if offset + length as usize > src.len() {

@@ -257,9 +257,10 @@ impl FastPFOR {
         let bytesize = input[inexcept as usize];
         inexcept += 1;
         self.bytes_container.clear();
-        self.bytes_container.buffer = self.bytes_container
-            .as_int_buffer()
-            .put(input, inexcept as usize, (bytesize + 3) / 4);
+        self.bytes_container.buffer =
+            self.bytes_container
+                .as_int_buffer()
+                .put(input, inexcept as usize, (bytesize + 3) / 4);
         inexcept += (bytesize + 3) / 4;
 
         let bitmap = input[inexcept as usize];
