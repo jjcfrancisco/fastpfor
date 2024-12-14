@@ -5,12 +5,7 @@ edition = "2021"
 rust-version = "1.78.0"
 
 [dependencies]
-bytebuffer = "2.3.0"
-bytemuck = "1.20.0"
-byteorder = "1.5.0"
-rand = "0.8.5"
-thiserror = "1.0.64"
-zerocopy = "0.8.10"
+thiserror = "2.0.7"
 
 [lints.rust]
 unused_assignments = "allow"
