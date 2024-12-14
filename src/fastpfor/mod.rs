@@ -323,7 +323,7 @@ impl FastPFOR {
             let cexcept = self.bytes_container.get() & 0xFF;
             for k in (0..BLOCK_SIZE).step_by(32) {
                 bitpacking::fast_unpack(
-                    &input,
+                    input,
                     tmp_in_pos as usize,
                     output,
                     (tmp_out_pos + k) as usize,
