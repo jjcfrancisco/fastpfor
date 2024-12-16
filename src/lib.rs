@@ -1,5 +1,6 @@
+mod bitpacking;
+mod bytebuffer;
+mod cursor;
 mod error;
 mod fastpfor;
-
-pub use self::error::{FastPForError, Result};
-pub use self::fastpfor::FastPFOR;
+mod helpers;

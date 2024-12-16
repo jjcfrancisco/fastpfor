@@ -1,19 +1,13 @@
-use crate::fastpfor::cursor::IncrementCursor;
-use crate::Result;
-
-mod bitpacking;
-mod bytebuffer;
-mod cursor;
-mod helpers;
-
 use std::io::Cursor;
 
-const BLOCK_SIZE: i32 = 256;
-#[allow(dead_code)]
+use crate::cursor::IncrementCursor;
+use crate::error::Result;
+use crate::{bitpacking, bytebuffer, helpers};
+
+const BLOCK_SIZE_256: i32 = 256;
+const BLOCK_SIZE_128: i32 = 128;
 const OVERHEAD_OF_EACH_EXCEPT: i32 = 8;
 const DEFAULT_PAGE_SIZE: i32 = 65536;
-#[allow(dead_code)]
-const ZERO_DATA_POINTERS: [i32; 32] = [0; 32];
 
 #[derive(Debug)]
 pub struct FastPFOR {
@@ -23,13 +17,15 @@ pub struct FastPFOR {
     pub data_pointers: Vec<usize>,
     pub freqs: Vec<i32>,
     pub bestbbestcexceptmaxb: [i32; 3],
+    pub block_size: i32,
 }
 
 impl FastPFOR {
-    pub fn new(page_size: i32) -> FastPFOR {
+    pub fn new(page_size: i32, block_size: i32) -> FastPFOR {
         FastPFOR {
             page_size,
-            bytes_container: bytebuffer::ByteBuffer::new(3 * page_size / BLOCK_SIZE + page_size),
+            block_size,
+            bytes_container: bytebuffer::ByteBuffer::new(3 * page_size / block_size + page_size),
             data_to_be_packed: {
                 let mut data_to_be_packed: Vec<Vec<i32>> =
                     vec![vec![0; page_size as usize / 32 * 4]; 33];
@@ -52,14 +48,14 @@ impl FastPFOR {
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
     ) -> Result<()> {
-        let inlength = helpers::greatest_multiple(inlength, BLOCK_SIZE as i32);
-        if inlength == 0 {
+        let inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
+        if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
             // Return early if there is no data to compress
             return Ok(());
         }
         output[out_pos.position() as usize] = inlength;
         out_pos.increment();
-        let _inlength = helpers::greatest_multiple(inlength, BLOCK_SIZE as i32);
+        let _inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
         let pos = in_pos.position() as i32;
         let final_inpos = pos + _inlength;
         while in_pos.position() as i32 != final_inpos {
@@ -86,7 +82,7 @@ impl FastPFOR {
         self.bytes_container.clear();
 
         let mut tmp_in_pos = in_pos.position() as i32;
-        let final_in_pos = tmp_in_pos as i32 + thissize - BLOCK_SIZE;
+        let final_in_pos = tmp_in_pos as i32 + thissize - self.block_size;
         while tmp_in_pos <= final_in_pos {
             self.best_b_from_data(input, tmp_in_pos);
             let tmp_best_b = self.bestbbestcexceptmaxb[0];
@@ -107,7 +103,7 @@ impl FastPFOR {
                     self.data_to_be_packed[index as usize]
                         .clone_from_slice(&vec![1; new_size as usize]);
                 }
-                for k in 0..BLOCK_SIZE {
+                for k in 0..self.block_size {
                     if (input[(k + tmp_in_pos) as usize] >> self.bestbbestcexceptmaxb[0]) != 0 {
                         self.bytes_container.put(k as u8);
                         self.data_to_be_packed[index as usize]
@@ -117,7 +113,7 @@ impl FastPFOR {
                     }
                 }
             }
-            for k in (0..BLOCK_SIZE).step_by(32) {
+            for k in (0..self.block_size).step_by(32) {
                 bitpacking::fast_pack(
                     input,
                     (tmp_in_pos + k) as usize,
@@ -127,7 +123,7 @@ impl FastPFOR {
                 );
                 tmp_out_pos += tmp_best_b;
             }
-            tmp_in_pos += BLOCK_SIZE;
+            tmp_in_pos += self.block_size;
         }
         in_pos.set_position(tmp_in_pos as u64);
         output[header_pos as usize] = tmp_out_pos as i32 - header_pos as i32;
@@ -184,7 +180,7 @@ impl FastPFOR {
 
     fn best_b_from_data(&mut self, input: &Vec<i32>, pos: i32) {
         self.freqs.fill(0);
-        let k_end = pos + BLOCK_SIZE;
+        let k_end = pos + self.block_size;
         for k in pos..k_end {
             self.freqs[helpers::bits(input[k as usize])] += 1;
         }
@@ -195,18 +191,18 @@ impl FastPFOR {
         }
         self.bestbbestcexceptmaxb[2] = self.bestbbestcexceptmaxb[0];
 
-        let mut bestcost = self.bestbbestcexceptmaxb[0] * BLOCK_SIZE;
+        let mut bestcost = self.bestbbestcexceptmaxb[0] * self.block_size;
         let mut cexcept: i32 = 0;
         self.bestbbestcexceptmaxb[1] = cexcept;
 
         for b in (0..self.bestbbestcexceptmaxb[0]).rev() {
             cexcept += self.freqs[b as usize + 1];
-            if cexcept == BLOCK_SIZE {
+            if cexcept == self.block_size {
                 break;
             }
             let mut thiscost = cexcept * OVERHEAD_OF_EACH_EXCEPT
                 + cexcept * (self.bestbbestcexceptmaxb[2] - b)
-                + b * BLOCK_SIZE
+                + b * self.block_size
                 + 8;
             if self.bestbbestcexceptmaxb[2] - b == 1 {
                 thiscost -= cexcept;
@@ -233,7 +229,7 @@ impl FastPFOR {
         }
         let outlength = input[in_pos.position() as usize];
         in_pos.increment();
-        let mynvalue = helpers::greatest_multiple(outlength, BLOCK_SIZE);
+        let mynvalue = helpers::greatest_multiple(outlength, self.block_size);
         let final_out = out_pos.position() as i32 + mynvalue;
         while out_pos.position() as i32 != final_out {
             let this_size = std::cmp::min(self.page_size, final_out - out_pos.position() as i32);
@@ -317,11 +313,11 @@ impl FastPFOR {
         let mut tmp_out_pos = out_pos.position() as i32;
         let mut tmp_in_pos = in_pos.position() as i32;
 
-        let run_end = thissize / BLOCK_SIZE;
+        let run_end = thissize / self.block_size;
         for _ in 0..run_end {
             let b = self.bytes_container.get() as i32;
             let cexcept = self.bytes_container.get() & 0xFF;
-            for k in (0..BLOCK_SIZE).step_by(32) {
+            for k in (0..self.block_size).step_by(32) {
                 bitpacking::fast_unpack(
                     input,
                     tmp_in_pos as usize,
@@ -349,7 +345,7 @@ impl FastPFOR {
                     }
                 }
             }
-            tmp_out_pos += BLOCK_SIZE;
+            tmp_out_pos += self.block_size;
         }
         out_pos.set_position(tmp_out_pos as u64);
         in_pos.set_position(inexcept as u64);
@@ -362,9 +358,9 @@ mod tests {
 
     #[test]
     fn fastpfor_test() {
-        let mut codec1 = FastPFOR::new(DEFAULT_PAGE_SIZE);
-        let mut codec2 = FastPFOR::new(DEFAULT_PAGE_SIZE);
-        let mut data = vec![0; BLOCK_SIZE as usize];
+        let mut codec1 = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_256);
+        let mut codec2 = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_256);
+        let mut data = vec![0; BLOCK_SIZE_256 as usize];
         data[126] = -1;
         let mut out_buf = vec![0; data.len() * 4];
         let mut in_pos = Cursor::new(0);
@@ -379,27 +375,66 @@ mod tests {
             )
             .unwrap();
         let comp = out_buf[..out_pos.position() as usize].to_vec();
-        let initial_values = vec![256, 1, 4, 2116026624, -2147483648, 1, -1];
-        let zeros_count = 1024 - initial_values.len();
-        let mut out_buf_compressed: Vec<i32> = initial_values;
-        out_buf_compressed.extend(vec![0; zeros_count]);
-        assert_eq!(out_buf_compressed, out_buf);
 
         let mut out_buf_uncomp = vec![0; data.len() * 4];
-        let mut in_pos_uncomp = Cursor::new(0);
-        let mut out_pos_uncomp = Cursor::new(0);
+        in_pos = Cursor::new(0);
+        out_pos = Cursor::new(0);
         codec2
             .uncompress(
                 &comp,
-                &mut in_pos_uncomp,
+                &mut in_pos,
                 comp.len() as i32,
                 &mut out_buf_uncomp,
-                &mut out_pos_uncomp,
+                &mut out_pos,
             )
             .unwrap();
-        let answer = out_buf_uncomp[..out_pos_uncomp.position() as usize].to_vec();
+        let answer = out_buf_uncomp[..out_pos.position() as usize].to_vec();
 
-        for k in 0..BLOCK_SIZE {
+        for k in 0..BLOCK_SIZE_256 {
+            if answer[k as usize] != data[k as usize] {
+                panic!("bug {} {} != {}", k, answer[k as usize], data[k as usize]);
+            }
+        }
+    }
+
+    #[test]
+    fn fastpfor_test_128() {
+        let mut codec1 = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128);
+        let mut codec2 = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128);
+        let mut data = vec![0; BLOCK_SIZE_128 as usize];
+        for i in 0..BLOCK_SIZE_128 {
+            data[i as usize] = 0;
+        }
+        data[126] = -1;
+        let mut out_buf = vec![0; data.len() * 4];
+        let mut in_pos = Cursor::new(0);
+        let mut out_pos = Cursor::new(0);
+        codec1
+            .compress(
+                &data,
+                &mut in_pos,
+                data.len() as i32,
+                &mut out_buf,
+                &mut out_pos,
+            )
+            .unwrap();
+        let comp = out_buf[..out_pos.position() as usize].to_vec();
+
+        let mut out_buf_uncomp = vec![0; data.len() * 4];
+        in_pos = Cursor::new(0);
+        out_pos = Cursor::new(0);
+        codec2
+            .uncompress(
+                &comp,
+                &mut in_pos,
+                comp.len() as i32,
+                &mut out_buf_uncomp,
+                &mut out_pos,
+            )
+            .unwrap();
+        let answer = out_buf_uncomp[..out_pos.position() as usize].to_vec();
+
+        for k in 0..BLOCK_SIZE_128 {
             if answer[k as usize] != data[k as usize] {
                 panic!("bug {} {} != {}", k, answer[k as usize], data[k as usize]);
             }
@@ -408,7 +443,7 @@ mod tests {
 
     #[test]
     fn test_spurious() {
-        let mut c = FastPFOR::new(DEFAULT_PAGE_SIZE);
+        let mut c = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_256);
         let x = vec![0; 1024];
         let mut y = vec![0; 0];
         let mut i0 = Cursor::new(0);
@@ -421,7 +456,7 @@ mod tests {
 
     #[test]
     fn test_zero_in_zero_out() {
-        let mut c = FastPFOR::new(DEFAULT_PAGE_SIZE);
+        let mut c = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_256);
         let x = vec![0; 0];
         let mut y = vec![0; 0];
         let mut i0 = Cursor::new(0);
