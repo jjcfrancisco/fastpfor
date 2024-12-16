@@ -1,4 +1,6 @@
 mod error;
 mod fastpfor;
-
-pub use self::error::{FastPForError, Result};
+mod cursor;
+mod bitpacking;
+mod bytebuffer;
+mod helpers;
