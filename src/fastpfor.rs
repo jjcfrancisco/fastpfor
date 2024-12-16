@@ -5,11 +5,8 @@ use crate::error::Result;
 use crate::{bitpacking, bytebuffer, helpers};
 
 const BLOCK_SIZE: i32 = 256;
-#[allow(dead_code)]
 const OVERHEAD_OF_EACH_EXCEPT: i32 = 8;
 const DEFAULT_PAGE_SIZE: i32 = 65536;
-#[allow(dead_code)]
-const ZERO_DATA_POINTERS: [i32; 32] = [0; 32];
 
 #[derive(Debug)]
 pub struct FastPFOR {
