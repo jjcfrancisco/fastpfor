@@ -1,6 +1,6 @@
-mod error;
-mod fastpfor;
-mod cursor;
 mod bitpacking;
 mod bytebuffer;
+mod cursor;
+mod error;
+mod fastpfor;
 mod helpers;

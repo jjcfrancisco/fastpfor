@@ -1,7 +1,8 @@
 use std::io::Cursor;
+
 use crate::cursor::IncrementCursor;
-use crate::{bitpacking, bytebuffer, helpers};
 use crate::error::Result;
+use crate::{bitpacking, bytebuffer, helpers};
 
 const BLOCK_SIZE: i32 = 256;
 #[allow(dead_code)]
