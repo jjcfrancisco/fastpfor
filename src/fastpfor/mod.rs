@@ -1,8 +1,8 @@
-pub mod fastpfor;
-pub mod fastpfor128;
 mod bitpacking;
 mod bytebuffer;
 mod cursor;
+pub mod fastpfor;
+pub mod fastpfor128;
 mod helpers;
 
 // use std::io::Cursor;
