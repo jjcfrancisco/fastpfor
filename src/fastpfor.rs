@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use crate::cursor::IncrementCursor;
-use crate::error::Result;
+use crate::error::FastPForResult;
 use crate::{bitpacking, bytebuffer, helpers};
 
 const BLOCK_SIZE_256: i32 = 256;
@@ -47,7 +47,7 @@ impl FastPFOR {
         inlength: i32,
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
-    ) -> Result<()> {
+    ) -> FastPForResult<()> {
         let inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
         if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
             // Return early if there is no data to compress
@@ -222,7 +222,7 @@ impl FastPFOR {
         inlength: i32,
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
-    ) -> Result<()> {
+    ) -> FastPForResult<()> {
         if inlength == 0 {
             // Return early if there is no data to compress
             return Ok(());

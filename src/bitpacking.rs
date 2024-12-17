@@ -1,3 +1,5 @@
+#![expect(clippy::identity_op)]
+
 pub fn fast_pack(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
     match bit {
         0 => fast_pack0(input, inpos, output, outpos),
@@ -37,7 +39,7 @@ pub fn fast_pack(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize,
     }
 }
 
-#[allow(unused_variables)]
+#[expect(unused_variables)]
 fn fast_pack0(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
     // Nothing
 }
