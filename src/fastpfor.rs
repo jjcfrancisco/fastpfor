@@ -316,7 +316,7 @@ impl FastPFOR {
         let run_end = thissize / self.block_size;
         for _ in 0..run_end {
             let b = self.bytes_container.get() as i32;
-            let cexcept = self.bytes_container.get() & 0xFF;
+            let cexcept = self.bytes_container.get();
             for k in (0..self.block_size).step_by(32) {
                 bitpacking::fast_unpack(
                     input,
@@ -332,12 +332,12 @@ impl FastPFOR {
                 let index = maxbits - b;
                 if index == 1 {
                     for _ in 0..cexcept {
-                        let pos = self.bytes_container.get() & 0xFF;
+                        let pos = self.bytes_container.get();
                         output[pos as usize + tmp_out_pos as usize] |= 1 << b;
                     }
                 } else {
                     for _ in 0..cexcept {
-                        let pos = self.bytes_container.get() & 0xFF;
+                        let pos = self.bytes_container.get();
                         let except_value = self.data_to_be_packed[index as usize]
                             [self.data_pointers[index as usize]];
                         output[pos as usize + tmp_out_pos as usize] |= except_value << b;
