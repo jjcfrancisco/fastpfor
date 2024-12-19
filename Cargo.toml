@@ -8,6 +8,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 keywords = ["fastpfor", "compression"]
 categories = ["compression"]
+rust-version = "1.83.0"
 
 [dependencies]
 thiserror = "2.0.7"
