@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use crate::cursor::IncrementCursor;
-use crate::error::Result;
+use crate::error::FastPForResult;
 use crate::{bitpacking, bytebuffer, helpers};
 
 const BLOCK_SIZE_256: i32 = 256;
@@ -47,7 +47,7 @@ impl FastPFOR {
         inlength: i32,
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
-    ) -> Result<()> {
+    ) -> FastPForResult<()> {
         let inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
         if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
             // Return early if there is no data to compress
@@ -222,7 +222,7 @@ impl FastPFOR {
         inlength: i32,
         output: &mut Vec<i32>,
         out_pos: &mut Cursor<i32>,
-    ) -> Result<()> {
+    ) -> FastPForResult<()> {
         if inlength == 0 {
             // Return early if there is no data to compress
             return Ok(());
@@ -316,7 +316,7 @@ impl FastPFOR {
         let run_end = thissize / self.block_size;
         for _ in 0..run_end {
             let b = self.bytes_container.get() as i32;
-            let cexcept = self.bytes_container.get() & 0xFF;
+            let cexcept = self.bytes_container.get();
             for k in (0..self.block_size).step_by(32) {
                 bitpacking::fast_unpack(
                     input,
@@ -332,12 +332,12 @@ impl FastPFOR {
                 let index = maxbits - b;
                 if index == 1 {
                     for _ in 0..cexcept {
-                        let pos = self.bytes_container.get() & 0xFF;
+                        let pos = self.bytes_container.get();
                         output[pos as usize + tmp_out_pos as usize] |= 1 << b;
                     }
                 } else {
                     for _ in 0..cexcept {
-                        let pos = self.bytes_container.get() & 0xFF;
+                        let pos = self.bytes_container.get();
                         let except_value = self.data_to_be_packed[index as usize]
                             [self.data_pointers[index as usize]];
                         output[pos as usize + tmp_out_pos as usize] |= except_value << b;
