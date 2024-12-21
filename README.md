@@ -8,6 +8,10 @@
 
 FastPFOR library written in Rust. Currently in development.
 
+## To do:
+- [ ] Remove fast_pack0 function: noop
+- [ ] Implement traits for fastpfor
+
 ## License
 
 Licensed under either of
