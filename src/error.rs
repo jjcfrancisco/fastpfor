@@ -1,5 +1,6 @@
-pub type Result<T> = core::result::Result<T, FastPForError>;
 use thiserror::Error;
+
+pub type FastPForResult<T> = Result<T, FastPForError>;
 
 #[derive(Error, Debug)]
 pub enum FastPForError {
