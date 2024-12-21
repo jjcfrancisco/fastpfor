@@ -4,3 +4,4 @@ mod cursor;
 mod error;
 mod fastpfor;
 mod helpers;
+mod variable_byte;
