@@ -31,3 +31,12 @@ fn bitlen(x: u64) -> i32 {
     }
     64 - clz(x) as i32
 }
+
+pub fn extract7bits(i: i32, val: i64) -> u8 {
+    ((val >> (7 * i)) & ((1 << 7) - 1)) as u8
+}
+
+pub fn extract_7bits_maskless(i: i32, val: i64) -> u8 {
+    (val >> (7 * i)) as u8
+}
+

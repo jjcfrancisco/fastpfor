@@ -5,7 +5,17 @@ mod error;
 mod fastpfor;
 mod helpers;
 mod variable_byte;
-mod codecs;
 
 pub use error::{FastPForError, FastPForResult};
 pub use fastpfor::FastPFOR;
+
+enum Codec {
+    FastPFor(fastpfor::FastPFOR),
+    VariableByte,
+}
+
+#[derive(Debug, PartialEq)]
+enum Output {
+    Byte(Vec<u8>),
+    I32(Vec<i32>),
+}

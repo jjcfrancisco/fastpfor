@@ -1,79 +1,60 @@
 use crate::bytebuffer::ByteBuffer;
-use crate::codecs::{ByteIntegerCodec, IntegerCodec, SkippableIntegerCodec};
 use crate::cursor::IncrementCursor;
+use crate::helpers::{extract7bits, extract_7bits_maskless};
 use crate::FastPForResult;
+use crate::Output;
 use std::io::Cursor;
 
 pub struct VariableByte;
 
 impl VariableByte {
-    fn extract7bits(i: i32, val: i64) -> u8 {
-        ((val >> (7 * i)) & ((1 << 7) - 1)) as u8
-    }
-
-    fn extract_7bits_maskless(i: i32, val: i64) -> u8 {
-        (val >> (7 * i)) as u8
-    }
-}
-
-impl IntegerCodec for VariableByte {
     fn compress(
         &mut self,
         input: &Vec<i32>,
         in_pos: &mut Cursor<i32>,
         inlength: i32,
-        output: &mut Vec<i32>,
+        output: &mut Output,
         out_pos: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
-        self.headless_compress(input, in_pos, inlength, output, out_pos)
-    }
-}
-
-impl ByteIntegerCodec for VariableByte {
-    fn compress(
-        &mut self,
-        input: &Vec<i32>,
-        in_pos: &mut Cursor<i32>,
-        inlength: i32,
-        output: &mut Vec<u8>,
-        out_pos: &mut Cursor<i32>,
-    ) -> FastPForResult<()> {
-        if inlength == 0 {
-            // Return early if there is no data to compress
-            return Ok(());
-        }
-        let out_pos_tmp = out_pos.position();
-        for k in in_pos.position() as i32..(in_pos.position() as i32 + inlength) {
-            let val = input[k as usize] as i64;
-            if val < (1 << 7) {
-                output.push((val | (1 << 7)) as u8);
-            } else if val < (1 << 14) {
-                output.push(VariableByte::extract7bits(0, val));
-                output.push(VariableByte::extract_7bits_maskless(1, val) | (1 << 7));
-            } else if val < (1 << 21) {
-                output.push(VariableByte::extract7bits(0, val));
-                output.push(VariableByte::extract7bits(1, val));
-                output.push(VariableByte::extract_7bits_maskless(2, val) | (1 << 7));
-            } else if val < (1 << 28) {
-                output.push(VariableByte::extract7bits(0, val));
-                output.push(VariableByte::extract7bits(1, val));
-                output.push(VariableByte::extract7bits(2, val));
-                output.push(VariableByte::extract_7bits_maskless(3, val) | (1 << 7));
-            } else {
-                output.push(VariableByte::extract7bits(0, val));
-                output.push(VariableByte::extract7bits(1, val));
-                output.push(VariableByte::extract7bits(2, val));
-                output.push(VariableByte::extract7bits(3, val));
-                output.push(VariableByte::extract_7bits_maskless(4, val) | (1 << 7));
+        match output {
+            Output::I32(output) => self.headless_compress(input, in_pos, inlength, output, out_pos),
+            Output::Byte(output) => {
+                if inlength == 0 {
+                    // Return early if there is no data to compress
+                    return Ok(());
+                }
+                let out_pos_tmp = out_pos.position();
+                for k in in_pos.position() as i32..(in_pos.position() as i32 + inlength) {
+                    let val = input[k as usize] as i64;
+                    if val < (1 << 7) {
+                        output.push((val | (1 << 7)) as u8);
+                    } else if val < (1 << 14) {
+                        output.push(extract7bits(0, val).into());
+                        output.push(extract_7bits_maskless(1, val) | (1 << 7));
+                    } else if val < (1 << 21) {
+                        output.push(extract7bits(0, val));
+                        output.push(extract7bits(1, val));
+                        output.push(extract_7bits_maskless(2, val) | (1 << 7));
+                    } else if val < (1 << 28) {
+                        output.push(extract7bits(0, val));
+                        output.push(extract7bits(1, val));
+                        output.push(extract7bits(2, val));
+                        output.push(extract_7bits_maskless(3, val) | (1 << 7));
+                    } else {
+                        output.push(extract7bits(0, val));
+                        output.push(extract7bits(1, val));
+                        output.push(extract7bits(2, val));
+                        output.push(extract7bits(3, val));
+                        output.push(extract_7bits_maskless(4, val) | (1 << 7));
+                    }
+                }
+                out_pos.set_position(out_pos_tmp + inlength as u64);
+                in_pos.add(inlength);
+                FastPForResult::Ok(())
             }
         }
-        out_pos.set_position(out_pos_tmp + inlength as u64);
-        in_pos.add(inlength);
-        FastPForResult::Ok(())
     }
-}
 
-impl SkippableIntegerCodec for VariableByte {
     fn headless_compress(
         &mut self,
         input: &Vec<i32>,
@@ -92,23 +73,23 @@ impl SkippableIntegerCodec for VariableByte {
             if val < (1 << 7) {
                 buf.put((val | (1 << 7)) as u8);
             } else if val < (1 << 14) {
-                buf.put(VariableByte::extract7bits(0, val));
-                buf.put(VariableByte::extract_7bits_maskless(1, val) | (1 << 7));
+                buf.put(extract7bits(0, val));
+                buf.put(extract_7bits_maskless(1, val) | (1 << 7));
             } else if val < (1 << 21) {
-                buf.put(VariableByte::extract7bits(0, val));
-                buf.put(VariableByte::extract7bits(1, val));
-                buf.put(VariableByte::extract_7bits_maskless(2, val) | (1 << 7));
+                buf.put(extract7bits(0, val));
+                buf.put(extract7bits(1, val));
+                buf.put(extract_7bits_maskless(2, val) | (1 << 7));
             } else if val < (1 << 28) {
-                buf.put(VariableByte::extract7bits(0, val));
-                buf.put(VariableByte::extract7bits(1, val));
-                buf.put(VariableByte::extract7bits(2, val));
-                buf.put(VariableByte::extract_7bits_maskless(3, val) | (1 << 7));
+                buf.put(extract7bits(0, val));
+                buf.put(extract7bits(1, val));
+                buf.put(extract7bits(2, val));
+                buf.put(extract_7bits_maskless(3, val) | (1 << 7));
             } else {
-                buf.put(VariableByte::extract7bits(0, val));
-                buf.put(VariableByte::extract7bits(1, val));
-                buf.put(VariableByte::extract7bits(2, val));
-                buf.put(VariableByte::extract7bits(3, val));
-                buf.put(VariableByte::extract_7bits_maskless(4, val) | (1 << 7));
+                buf.put(extract7bits(0, val));
+                buf.put(extract7bits(1, val));
+                buf.put(extract7bits(2, val));
+                buf.put(extract7bits(3, val));
+                buf.put(extract_7bits_maskless(4, val) | (1 << 7));
             }
         }
         while buf.position() % 4 != 0 {
@@ -130,16 +111,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_extract7bits() {
-        let val = 0b1000000;
-        let result = VariableByte::extract7bits(0, val);
-        assert_eq!(result, 0b1000000);
-    }
-
-    #[test]
-    fn test_extract_7bits_maskless() {
-        let val = 0b1000000;
-        let result = VariableByte::extract_7bits_maskless(0, val);
-        assert_eq!(result, 0b1000000);
+    fn test_empty_array() {
+        // All empty
+        let mut codec = VariableByte;
+        let mut output = Output::I32(Vec::new());
+        codec
+            .compress(
+                &vec![],
+                &mut Cursor::new(0),
+                0,
+                &mut output,
+                &mut Cursor::new(0),
+            )
+            .expect("Failed to compress");
+        assert_eq!(output, Output::I32(vec![]));
     }
 }
