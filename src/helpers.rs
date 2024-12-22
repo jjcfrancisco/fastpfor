@@ -39,4 +39,3 @@ pub fn extract7bits(i: i32, val: i64) -> u8 {
 pub fn extract_7bits_maskless(i: i32, val: i64) -> u8 {
     (val >> (7 * i)) as u8
 }
-

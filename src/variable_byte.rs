@@ -1,9 +1,9 @@
+use std::io::Cursor;
+
 use crate::bytebuffer::ByteBuffer;
 use crate::cursor::IncrementCursor;
 use crate::helpers::{extract7bits, extract_7bits_maskless};
-use crate::FastPForResult;
-use crate::Output;
-use std::io::Cursor;
+use crate::{FastPForResult, Output};
 
 pub struct VariableByte;
 
