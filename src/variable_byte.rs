@@ -29,7 +29,7 @@ impl VariableByte {
                     if val < (1 << 7) {
                         output.push((val | (1 << 7)) as u8);
                     } else if val < (1 << 14) {
-                        output.push(extract7bits(0, val).into());
+                        output.push(extract7bits(0, val));
                         output.push(extract_7bits_maskless(1, val) | (1 << 7));
                     } else if val < (1 << 21) {
                         output.push(extract7bits(0, val));
