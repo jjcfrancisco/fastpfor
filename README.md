@@ -12,7 +12,6 @@ FastPFOR library written in Rust. Currently in development.
 - [ ] Remove fast_pack0 function: noop
 - [ ] Implement traits for fastpfor
 - [ ] Change Ok(()) to FastPForResult in fastpfor.rs
-- [ ] Change from `Position -> i64` to `Position -> i32`
 
 ## License
 
