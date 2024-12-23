@@ -88,7 +88,7 @@ impl VariableByte {
             return Ok(());
         }
         let mut buf = ByteBuffer::new(inlength * 8);
-        for k in in_pos.position() as i32..(in_pos.position() as i32 + inlength) {
+        for k in in_pos.position()..(in_pos.position() + inlength as u64) {
             let val = input[k as usize] as i64;
             if val < (1 << 7) {
                 buf.put((val | (1 << 7)) as u8);
@@ -125,7 +125,6 @@ impl VariableByte {
         FastPForResult::Ok(())
     }
 
-    #[expect(unused_variables)]
     fn uncompress(
         &mut self,
         input: &Vec<i32>,
@@ -137,7 +136,7 @@ impl VariableByte {
         match output {
             Output::I32(output) => {
                 let mut s = 0;
-                let val = 0 as u8;
+                let mut val = 0;
                 let mut p = in_pos.position() as i32;
                 let final_p = in_pos.position() as i32 + inlength;
                 let mut tmp_outpos = out_pos.position();
@@ -145,11 +144,11 @@ impl VariableByte {
                 let mut v = 0;
 
                 while p < final_p {
-                    let val = input[p as usize];
+                    val = input[p as usize];
                     let c = val >> s;
                     s += 8;
                     p += s >> 5;
-                    s &= 31;
+                    s = s & 31;
                     v += (c & 127) << shift;
                     if (c & 128) == 128 {
                         output[tmp_outpos as usize] = v;
@@ -232,25 +231,35 @@ mod tests {
 
         for x in 0..50 {
             let a = vec![2, 3, 4, 5];
-            let b = vec![0; 90];
+            let mut b = Output::I32(vec![0; 90]);
+            let mut c = Output::I32(vec![0; a.len()]);
             let mut a_offset = Cursor::new(0);
-            let mut b_offset = Cursor::new(x);
-            let mut output = Output::I32(b);
-            // println!("output before: {:?}", output);
+            let mut b_offset = Cursor::new(0);
+            b_offset.set_position(x as u64);
             codec
-                .compress(
-                    &a,
-                    &mut a_offset,
-                    a.len() as i32,
-                    &mut output,
-                    &mut b_offset,
-                )
+                .compress(&a, &mut a_offset, a.len() as i32, &mut b, &mut b_offset)
                 .expect("Failed to compress");
-            // println!("output after: {:?}", output);
-            #[expect(unused_variables)]
+            let comp = {
+                match b {
+                    Output::I32(output) => output,
+                    _ => panic!("Output is not I32"),
+                }
+            };
             let len = b_offset.position() as i32 - x;
             b_offset.set_position(x as u64);
-            println!("b_offset: {:?}", b_offset);
+
+            let mut c_offset = Cursor::new(0);
+            codec
+                .uncompress(&comp, &mut b_offset, len, &mut c, &mut c_offset)
+                .expect("Failed to uncompress");
+            let uncomp = {
+                match c {
+                    Output::I32(output) => output,
+                    _ => panic!("Output is not I32"),
+                }
+            };
+
+            assert_eq!(a, uncomp);
         }
     }
 }
