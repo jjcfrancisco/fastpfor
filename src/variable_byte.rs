@@ -149,7 +149,7 @@ impl VariableByte {
                     let c = val >> s;
                     s += 8;
                     p += s >> 5;
-                    s = s & 31;
+                    s &= 31;
                     v += (c & 127) << shift;
                     if (c & 128) == 128 {
                         output[tmp_outpos as usize] = v;
@@ -176,22 +176,22 @@ impl VariableByte {
                         p += 1;
                         continue;
                     }
-                    v = ((input[p as usize + 1]) << 7) | v;
+                    v |= (input[p as usize + 1]) << 7;
                     if input[p as usize + 1] < 0 {
                         p += 2;
                         continue;
                     }
-                    v = ((input[p as usize + 2]) << 14) | v;
+                    v |= (input[p as usize + 2]) << 14;
                     if input[p as usize + 2] < 0 {
                         p += 3;
                         continue;
                     }
-                    v = ((input[p as usize + 3]) << 21) | v;
+                    v |= (input[p as usize + 3]) << 21;
                     if input[p as usize + 3] < 0 {
                         p += 4;
                         continue;
                     }
-                    v = ((input[p as usize + 4]) << 28) | v;
+                    v |= (input[p as usize + 4]) << 28;
                     p += 5;
                     output[tmp_outpos as usize] = v as u8;
                     tmp_outpos += 1;
