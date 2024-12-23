@@ -19,3 +19,9 @@ enum Output {
     Byte(Vec<u8>),
     I32(Vec<i32>),
 }
+
+// #[derive(Debug, PartialEq)]
+// enum Output<'a> {
+//     Byte(&'a mut Vec<u8>),
+//     I32(&'a mut Vec<i32>),
+// }
