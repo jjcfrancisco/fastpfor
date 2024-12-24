@@ -149,6 +149,7 @@ impl VariableByte {
                     s += 8;
                     p += s >> 5;
                     s &= 31;
+                    shift = shift.min(31); // for safety
                     v += (c & 127) << shift;
                     if (c & 128) == 128 {
                         output[tmp_outpos as usize] = v;
@@ -295,12 +296,14 @@ mod tests {
         }
 
         for l in 1..128 {
-            let mut output_compress = Output::I32(vec![0; data.len() * 4]);
+            let mut data_copy = data.clone();
+            data_copy.resize(l, 0);
+            let mut output_compress = Output::I32(vec![0; data_copy.len() * 4]);
             codec
                 .compress(
-                    &data,
+                    &data_copy,
                     &mut Cursor::new(0),
-                    data.len() as i32,
+                    data_copy.len() as i32,
                     &mut output_compress,
                     &mut Cursor::new(0),
                 )
@@ -316,7 +319,7 @@ mod tests {
                 .uncompress(
                     &comp,
                     &mut Cursor::new(0),
-                    l as i32,
+                    comp.len() as i32,
                     &mut answer,
                     &mut Cursor::new(0),
                 )
@@ -328,6 +331,55 @@ mod tests {
                 }
             };
             for k in 0..l {
+                if uncomp[k] != data[k] {
+                    panic!("bug");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_varying_length_two() {
+        let mut codec = VariableByte;
+        let n = 128;
+        let mut data = vec![0; n];
+        data[127] = -1;
+        for l in 1..128 {
+            let mut data_copy = data.clone();
+            let mut output_compress = Output::I32(vec![0; data_copy.len() * 4]);
+            data_copy.resize(l, 0);
+            codec
+                .compress(
+                    &data_copy,
+                    &mut Cursor::new(0),
+                    data_copy.len() as i32,
+                    &mut output_compress,
+                    &mut Cursor::new(0),
+                )
+                .expect("Failed to compress");
+            let comp = {
+                match output_compress {
+                    Output::I32(ref output) => output,
+                    _ => panic!("Output is not I32"),
+                }
+            };
+            let mut answer = Output::I32(vec![0; data_copy.len() + 1024]);
+            codec
+                .uncompress(
+                    &comp,
+                    &mut Cursor::new(0),
+                    128,
+                    &mut answer,
+                    &mut Cursor::new(0),
+                )
+                .expect("Failed to uncompress");
+            let uncomp = {
+                match answer {
+                    Output::I32(output) => output,
+                    _ => panic!("Output is not I32"),
+                }
+            };
+            for k in 1..l {
                 if uncomp[k] != data[k] {
                     panic!("bug");
                 }
