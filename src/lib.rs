@@ -7,21 +7,11 @@ mod helpers;
 mod variable_byte;
 
 pub use error::{FastPForError, FastPForResult};
-pub use fastpfor::FastPFOR;
-
-enum Codec {
-    FastPFor(fastpfor::FastPFOR),
-    VariableByte,
-}
+pub use fastpfor::{FastPFOR, BLOCK_SIZE_256, BLOCK_SIZE_128, DEFAULT_PAGE_SIZE};
+pub use variable_byte::VariableByte;
 
 #[derive(Debug, PartialEq)]
-enum Output {
+pub enum Output {
     Byte(Vec<u8>),
     I32(Vec<i32>),
 }
-
-// #[derive(Debug, PartialEq)]
-// enum Output<'a> {
-//     Byte(&'a mut Vec<u8>),
-//     I32(&'a mut Vec<i32>),
-// }
