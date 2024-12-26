@@ -1,5 +1,6 @@
-use fastpfor::Output;
 use std::io::Cursor;
+
+use fastpfor::Output;
 
 mod common;
 
@@ -122,7 +123,7 @@ fn test_varying_length_two() {
             let mut answer = Output::I32(vec![0; data_copy.len() + 1024]);
             codec
                 .uncompress(
-                    &comp,
+                    comp,
                     &mut Cursor::new(0),
                     128,
                     &mut answer,

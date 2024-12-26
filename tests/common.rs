@@ -1,5 +1,6 @@
-use fastpfor::{FastPFOR, Output, VariableByte, FastPForResult};
 use std::io::Cursor;
+
+use fastpfor::{FastPFOR, FastPForResult, Output, VariableByte};
 
 #[derive(Debug)]
 pub enum Codec {
@@ -56,7 +57,5 @@ impl Codec {
 pub fn get_codecs() -> Vec<Codec> {
     let variablebyte = VariableByte;
 
-    vec![
-        Codec::VariableByte(variablebyte),
-    ]
+    vec![Codec::VariableByte(variablebyte)]
 }

@@ -7,7 +7,7 @@ mod helpers;
 mod variable_byte;
 
 pub use error::{FastPForError, FastPForResult};
-pub use fastpfor::{FastPFOR, BLOCK_SIZE_256, BLOCK_SIZE_128, DEFAULT_PAGE_SIZE};
+pub use fastpfor::{FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE};
 pub use variable_byte::VariableByte;
 
 #[derive(Debug, PartialEq)]
