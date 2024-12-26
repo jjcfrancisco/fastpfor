@@ -4,10 +4,10 @@ use crate::cursor::IncrementCursor;
 use crate::error::FastPForResult;
 use crate::{bitpacking, bytebuffer, helpers};
 
-const BLOCK_SIZE_256: i32 = 256;
-const BLOCK_SIZE_128: i32 = 128;
+pub const BLOCK_SIZE_256: i32 = 256;
+pub const BLOCK_SIZE_128: i32 = 128;
 const OVERHEAD_OF_EACH_EXCEPT: i32 = 8;
-const DEFAULT_PAGE_SIZE: i32 = 65536;
+pub const DEFAULT_PAGE_SIZE: i32 = 65536;
 
 #[derive(Debug)]
 pub struct FastPFOR {
@@ -158,7 +158,6 @@ impl FastPFOR {
                 tmp_out_pos += 1;
                 let mut j = 0;
                 while j < self.data_pointers[k as usize] {
-                    // println!("data_to_be_packed[k]: {:?}", self.data_to_be_packed[k as usize]);
                     bitpacking::fast_pack(
                         &self.data_to_be_packed[k as usize],
                         j,

@@ -5,9 +5,9 @@ pub type FastPForResult<T> = Result<T, FastPForError>;
 #[derive(Error, Debug)]
 pub enum FastPForError {
     #[error("Unable to uncompress data: {0}")]
-    Uncompress(String),
+    UncompressError(String),
     #[error("Unable to compress data: {0}")]
-    Compress(String),
+    CompressError(String),
     #[error("Invalid block size: {0}")]
-    InvalidBlockSize(String),
+    InvalidBlockSizeError(String),
 }
