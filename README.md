@@ -12,6 +12,9 @@ FastPFOR library written in Rust. Currently in development.
 - [ ] Remove fast_pack0 function: noop
 - [ ] Implement traits for fastpfor
 - [ ] Change Ok(()) to FastPForResult in fastpfor.rs
+- [ ] Change `inlength` to `input_length` for clarity
+- [ ] Change `in_pos` to `input_position` for clarity
+- [ ] Change `out_pos` to `output_position` for clarity
 
 ## License
 
