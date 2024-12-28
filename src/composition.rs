@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use crate::cursor::IncrementCursor;
-use crate::{Codec, IntegerCodec, FastPForResult};
+use crate::{Codec, FastPForResult, IntegerCodec};
 
 pub struct Composition {
     c1: Codec,
@@ -29,13 +29,15 @@ impl Composition {
         }
         let inpos_init = input_offset.position();
         let outpos_init = output_offset.position();
-        self.c1.compress(input, input_offset, input_length, output, output_offset)?;
+        self.c1
+            .compress(input, input_offset, input_length, output, output_offset)?;
         if output_offset.position() == outpos_init {
             output[outpos_init as usize] = 0;
             output_offset.increment();
         }
         input_length -= input_offset.position() as i32 - inpos_init as i32;
-        self.c2.compress(input, input_offset, input_length, output, output_offset)
+        self.c2
+            .compress(input, input_offset, input_length, output, output_offset)
     }
 
     fn uncompress(
@@ -51,9 +53,10 @@ impl Composition {
             return Ok(());
         }
         let final_init = input_offset.position() as i32;
-        self.c1.uncompress(input, input_offset, input_length, output, output_offset)?;
+        self.c1
+            .uncompress(input, input_offset, input_length, output, output_offset)?;
         input_length -= input_offset.position() as i32 - final_init;
-        self.c2.uncompress(input, input_offset, input_length, output, output_offset)
+        self.c2
+            .uncompress(input, input_offset, input_length, output, output_offset)
     }
-
 }

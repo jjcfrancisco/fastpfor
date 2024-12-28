@@ -1,5 +1,6 @@
-use crate::{Codec, Compressor, FastPForResult};
 use std::io::Cursor;
+
+use crate::{Codec, Compressor, FastPForResult};
 
 // Define a trait
 pub trait IntegerCodec {
