@@ -1,5 +1,6 @@
 mod bitpacking;
 mod bytebuffer;
+mod composition;
 mod cursor;
 mod error;
 mod fastpfor;
@@ -8,10 +9,9 @@ mod variable_byte;
 
 pub use error::{FastPForError, FastPForResult};
 pub use fastpfor::{FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE};
-pub use variable_byte::VariableByte;
+pub use variable_byte::{Compressor, VariableByte};
 
-#[derive(Debug, PartialEq)]
-pub enum Output {
-    Byte(Vec<u8>),
-    I32(Vec<i32>),
+pub enum Codec {
+    VariableByte(VariableByte),
 }
+
