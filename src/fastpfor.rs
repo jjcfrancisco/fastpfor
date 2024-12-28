@@ -2,6 +2,7 @@ use std::io::Cursor;
 
 use crate::cursor::IncrementCursor;
 use crate::error::FastPForResult;
+use crate::Compressor;
 use crate::{bitpacking, bytebuffer, helpers};
 
 pub const BLOCK_SIZE_256: i32 = 256;
@@ -38,31 +39,6 @@ impl FastPFOR {
             freqs: vec![0; 33],
             bestbbestcexceptmaxb: [0; 3],
         }
-    }
-
-    pub fn compress(
-        &mut self,
-        input: &Vec<i32>,
-        in_pos: &mut Cursor<i32>,
-        inlength: i32,
-        output: &mut Vec<i32>,
-        out_pos: &mut Cursor<i32>,
-    ) -> FastPForResult<()> {
-        let inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
-        if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
-            // Return early if there is no data to compress
-            return Ok(());
-        }
-        output[out_pos.position() as usize] = inlength;
-        out_pos.increment();
-        let _inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
-        let pos = in_pos.position() as i32;
-        let final_inpos = pos + _inlength;
-        while in_pos.position() as i32 != final_inpos {
-            let this_size = std::cmp::min(self.page_size, final_inpos - pos);
-            self.encode_page(input, in_pos, this_size, output, out_pos);
-        }
-        Ok(())
     }
 
     fn encode_page(
@@ -214,29 +190,6 @@ impl FastPFOR {
         }
     }
 
-    pub fn uncompress(
-        &mut self,
-        input: &Vec<i32>,
-        in_pos: &mut Cursor<i32>,
-        inlength: i32,
-        output: &mut Vec<i32>,
-        out_pos: &mut Cursor<i32>,
-    ) -> FastPForResult<()> {
-        if inlength == 0 {
-            // Return early if there is no data to compress
-            return Ok(());
-        }
-        let outlength = input[in_pos.position() as usize];
-        in_pos.increment();
-        let mynvalue = helpers::greatest_multiple(outlength, self.block_size);
-        let final_out = out_pos.position() as i32 + mynvalue;
-        while out_pos.position() as i32 != final_out {
-            let this_size = std::cmp::min(self.page_size, final_out - out_pos.position() as i32);
-            self.decode_page(input, in_pos, output, out_pos, this_size);
-        }
-        Ok(())
-    }
-
     fn decode_page(
         &mut self,
         input: &Vec<i32>,
@@ -348,6 +301,56 @@ impl FastPFOR {
         }
         out_pos.set_position(tmp_out_pos as u64);
         in_pos.set_position(inexcept as u64);
+    }
+}
+
+impl Compressor<i32> for FastPFOR {
+    fn compress(
+        &mut self,
+        input: &Vec<i32>,
+        in_pos: &mut Cursor<i32>,
+        inlength: i32,
+        output: &mut Vec<i32>,
+        out_pos: &mut Cursor<i32>,
+    ) -> FastPForResult<()> {
+        let inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
+        if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
+            // Return early if there is no data to compress
+            return Ok(());
+        }
+        output[out_pos.position() as usize] = inlength;
+        out_pos.increment();
+        let _inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
+        let pos = in_pos.position() as i32;
+        let final_inpos = pos + _inlength;
+        while in_pos.position() as i32 != final_inpos {
+            let this_size = std::cmp::min(self.page_size, final_inpos - pos);
+            self.encode_page(input, in_pos, this_size, output, out_pos);
+        }
+        Ok(())
+    }
+
+    fn uncompress(
+        &mut self,
+        input: &Vec<i32>,
+        in_pos: &mut Cursor<i32>,
+        inlength: i32,
+        output: &mut Vec<i32>,
+        out_pos: &mut Cursor<i32>,
+    ) -> FastPForResult<()> {
+        if inlength == 0 {
+            // Return early if there is no data to compress
+            return Ok(());
+        }
+        let outlength = input[in_pos.position() as usize];
+        in_pos.increment();
+        let mynvalue = helpers::greatest_multiple(outlength, self.block_size);
+        let final_out = out_pos.position() as i32 + mynvalue;
+        while out_pos.position() as i32 != final_out {
+            let this_size = std::cmp::min(self.page_size, final_out - out_pos.position() as i32);
+            self.decode_page(input, in_pos, output, out_pos, this_size);
+        }
+        Ok(())
     }
 }
 

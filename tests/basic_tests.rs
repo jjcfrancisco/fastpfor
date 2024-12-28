@@ -1,17 +1,14 @@
 use std::io::Cursor;
 
-use fastpfor::{Codec, Compressor};
+use fastpfor::IntegerCodec;
 
 mod common;
 
 fn saul_test() {
     let codecs = common::get_integer_codecs();
 
-    for codec in codecs {
+    for mut codec in codecs {
         // unwrap the codec
-        let mut codec = match codec {
-            Codec::VariableByte(codec) => codec,
-        };
         for x in 0..50 {
             let input = vec![2, 3, 4, 5];
             let mut output: Vec<i32> = vec![0; 90];
@@ -54,10 +51,7 @@ fn test_varying_length() {
         data[k] = k as i32;
     }
     let codecs = common::get_integer_codecs();
-    for codec in codecs {
-        let mut codec = match codec {
-            Codec::VariableByte(codec) => codec,
-        };
+    for mut codec in codecs {
         for l in 1..128 {
             let mut data_copy = data.clone();
             data_copy.resize(l, 0);
@@ -94,10 +88,7 @@ fn test_varying_length_two() {
     let mut data = vec![0; n];
     data[127] = -1;
     let codecs = common::get_integer_codecs();
-    for codec in codecs {
-        let mut codec = match codec {
-            Codec::VariableByte(codec) => codec,
-        };
+    for mut codec in codecs {
         for l in 1..128 {
             let mut data_copy = data.clone();
             let mut output_compress = vec![0; data_copy.len() * 4];
