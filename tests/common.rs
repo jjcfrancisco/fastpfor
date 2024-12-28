@@ -1,4 +1,4 @@
-use fastpfor::{VariableByte, Codec};
+use fastpfor::{Codec, VariableByte};
 
 pub fn get_integer_codecs() -> Vec<Codec> {
     let variablebyte = VariableByte;

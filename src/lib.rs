@@ -14,4 +14,3 @@ pub use variable_byte::{Compressor, VariableByte};
 pub enum Codec {
     VariableByte(VariableByte),
 }
-

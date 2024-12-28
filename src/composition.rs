@@ -1,7 +1,8 @@
-use crate::{Codec, FastPForResult};
 use std::io::Cursor;
+
 use crate::cursor::IncrementCursor;
 use crate::variable_byte::Compressor;
+use crate::{Codec, FastPForResult};
 
 pub struct Composition {
     c1: Codec,
@@ -27,7 +28,7 @@ impl Composition {
         if input_length == 0 {
             // Return early if there is no data to compress
             return Ok(());
-        } 
+        }
         let inpos_init = input_offset.position();
         let outpos_init = output_offset.position();
         c1.compress(input, input_offset, input_length, output, output_offset)?;
@@ -56,7 +57,7 @@ impl Composition {
         if input_length == 0 {
             // Return early if there is no data to compress
             return Ok(());
-        } 
+        }
         let final_init = input_offset.position() as i32;
         c1.uncompress(input, input_offset, input_length, output, output_offset)?;
         // Java:

@@ -1,5 +1,6 @@
-use fastpfor::{Codec, Compressor};
 use std::io::Cursor;
+
+use fastpfor::{Codec, Compressor};
 
 mod common;
 
