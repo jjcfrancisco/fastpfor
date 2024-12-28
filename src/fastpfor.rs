@@ -42,46 +42,46 @@ impl FastPFOR {
 
     pub fn compress(
         &mut self,
-        input: &Vec<i32>,
-        in_pos: &mut Cursor<i32>,
-        inlength: i32,
-        output: &mut Vec<i32>,
-        out_pos: &mut Cursor<i32>,
+        input: &[i32],
+        input_length: i32,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
-        let inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
+        let inlength = helpers::greatest_multiple(input_length, self.block_size as i32);
         if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
             // Return early if there is no data to compress
             return Ok(());
         }
-        output[out_pos.position() as usize] = inlength;
-        out_pos.increment();
+        output[output_offset.position() as usize] = inlength;
+        output_offset.increment();
         let _inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
-        let pos = in_pos.position() as i32;
+        let pos = input_offset.position() as i32;
         let final_inpos = pos + _inlength;
-        while in_pos.position() as i32 != final_inpos {
+        while input_offset.position() as i32 != final_inpos {
             let this_size = std::cmp::min(self.page_size, final_inpos - pos);
-            self.encode_page(input, in_pos, this_size, output, out_pos);
+            self.encode_page(input, this_size, input_offset, output, output_offset);
         }
         Ok(())
     }
 
     fn encode_page(
         &mut self,
-        input: &Vec<i32>,
-        in_pos: &mut Cursor<i32>,
+        input: &[i32],
         thissize: i32,
-        output: &mut Vec<i32>,
-        out_pos: &mut Cursor<i32>,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
     ) {
-        let header_pos = out_pos.position() as usize;
-        out_pos.increment();
-        let mut tmp_out_pos = out_pos.position() as i32;
+        let header_pos = output_offset.position() as usize;
+        output_offset.increment();
+        let mut tmp_out_pos = output_offset.position() as i32;
 
         // Data pointers to 0
         self.data_pointers.fill(0);
         self.bytes_container.clear();
 
-        let mut tmp_in_pos = in_pos.position() as i32;
+        let mut tmp_in_pos = input_offset.position() as i32;
         let final_in_pos = tmp_in_pos as i32 + thissize - self.block_size;
         while tmp_in_pos <= final_in_pos {
             self.best_b_from_data(input, tmp_in_pos);
@@ -125,7 +125,7 @@ impl FastPFOR {
             }
             tmp_in_pos += self.block_size;
         }
-        in_pos.set_position(tmp_in_pos as u64);
+        input_offset.set_position(tmp_in_pos as u64);
         output[header_pos as usize] = tmp_out_pos as i32 - header_pos as i32;
         let byte_size = self.bytes_container.position();
         while (self.bytes_container.position() & 3) != 0 {
@@ -174,10 +174,10 @@ impl FastPFOR {
                 tmp_out_pos -= (overflow * k as i32) / 32;
             }
         }
-        out_pos.set_position(tmp_out_pos as u64);
+        output_offset.set_position(tmp_out_pos as u64);
     }
 
-    fn best_b_from_data(&mut self, input: &Vec<i32>, pos: i32) {
+    fn best_b_from_data(&mut self, input: &[i32], pos: i32) {
         self.freqs.fill(0);
         let k_end = pos + self.block_size;
         for k in pos..k_end {
@@ -216,38 +216,39 @@ impl FastPFOR {
 
     pub fn uncompress(
         &mut self,
-        input: &Vec<i32>,
-        in_pos: &mut Cursor<i32>,
-        inlength: i32,
-        output: &mut Vec<i32>,
-        out_pos: &mut Cursor<i32>,
+        input: &[i32],
+        input_length: i32,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
-        if inlength == 0 {
+        if input_length == 0 {
             // Return early if there is no data to compress
             return Ok(());
         }
-        let outlength = input[in_pos.position() as usize];
-        in_pos.increment();
-        let mynvalue = helpers::greatest_multiple(outlength, self.block_size);
-        let final_out = out_pos.position() as i32 + mynvalue;
-        while out_pos.position() as i32 != final_out {
-            let this_size = std::cmp::min(self.page_size, final_out - out_pos.position() as i32);
-            self.decode_page(input, in_pos, output, out_pos, this_size);
+        let output_length = input[input_offset.position() as usize];
+        input_offset.increment();
+        let mynvalue = helpers::greatest_multiple(output_length, self.block_size);
+        let final_out = output_offset.position() as i32 + mynvalue;
+        while output_offset.position() as i32 != final_out {
+            let this_size =
+                std::cmp::min(self.page_size, final_out - output_offset.position() as i32);
+            self.decode_page(input, this_size, input_offset, output, output_offset);
         }
         Ok(())
     }
 
     fn decode_page(
         &mut self,
-        input: &Vec<i32>,
-        in_pos: &mut Cursor<i32>,
-        output: &mut Vec<i32>,
-        out_pos: &mut Cursor<i32>,
+        input: &[i32],
         thissize: i32,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
     ) {
-        let init_pos = in_pos.position() as i32;
-        let where_meta = input[in_pos.position() as usize];
-        in_pos.increment();
+        let init_pos = input_offset.position() as i32;
+        let where_meta = input[input_offset.position() as usize];
+        input_offset.increment();
         let mut inexcept = init_pos + where_meta;
         let bytesize = input[inexcept as usize];
         inexcept += 1;
@@ -309,8 +310,8 @@ impl FastPFOR {
         }
 
         self.data_pointers.fill(0);
-        let mut tmp_out_pos = out_pos.position() as i32;
-        let mut tmp_in_pos = in_pos.position() as i32;
+        let mut tmp_out_pos = output_offset.position() as i32;
+        let mut tmp_in_pos = input_offset.position() as i32;
 
         let run_end = thissize / self.block_size;
         for _ in 0..run_end {
@@ -346,8 +347,8 @@ impl FastPFOR {
             }
             tmp_out_pos += self.block_size;
         }
-        out_pos.set_position(tmp_out_pos as u64);
-        in_pos.set_position(inexcept as u64);
+        output_offset.set_position(tmp_out_pos as u64);
+        input_offset.set_position(inexcept as u64);
     }
 }
 
@@ -367,8 +368,8 @@ mod tests {
         codec1
             .compress(
                 &data,
-                &mut in_pos,
                 data.len() as i32,
+                &mut in_pos,
                 &mut out_buf,
                 &mut out_pos,
             )
@@ -381,8 +382,8 @@ mod tests {
         codec2
             .uncompress(
                 &comp,
-                &mut in_pos,
                 comp.len() as i32,
+                &mut in_pos,
                 &mut out_buf_uncomp,
                 &mut out_pos,
             )
@@ -411,8 +412,8 @@ mod tests {
         codec1
             .compress(
                 &data,
-                &mut in_pos,
                 data.len() as i32,
+                &mut in_pos,
                 &mut out_buf,
                 &mut out_pos,
             )
@@ -425,8 +426,8 @@ mod tests {
         codec2
             .uncompress(
                 &comp,
-                &mut in_pos,
                 comp.len() as i32,
+                &mut in_pos,
                 &mut out_buf_uncomp,
                 &mut out_pos,
             )
@@ -448,7 +449,7 @@ mod tests {
         let mut i0 = Cursor::new(0);
         let mut i1 = Cursor::new(0);
         for inlength in 0..32 {
-            c.compress(&x, &mut i0, inlength, &mut y, &mut i1).unwrap();
+            c.compress(&x, inlength, &mut i0, &mut y, &mut i1).unwrap();
             assert_eq!(0, i1.position());
         }
     }
@@ -460,13 +461,13 @@ mod tests {
         let mut y = vec![0; 0];
         let mut i0 = Cursor::new(0);
         let mut i1 = Cursor::new(0);
-        c.compress(&x, &mut i0, 0, &mut y, &mut i1).unwrap();
+        c.compress(&x, 0, &mut i0, &mut y, &mut i1).unwrap();
         assert_eq!(0, i1.position());
 
         // Needs uncompress
         let mut out = vec![0; 0];
         let mut outpos = Cursor::new(0);
-        c.uncompress(&y, &mut i1, 0, &mut out, &mut outpos).unwrap();
+        c.uncompress(&y, 0, &mut i1, &mut out, &mut outpos).unwrap();
         assert_eq!(0, outpos.position());
     }
 }
