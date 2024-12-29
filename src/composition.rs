@@ -9,16 +9,16 @@ pub struct Composition {
 }
 
 impl Composition {
-    fn new(c1: Codec, c2: Codec) -> Self {
+    pub fn new(c1: Codec, c2: Codec) -> Self {
         Composition { c1, c2 }
     }
 
-    fn compress(
+    pub fn compress(
         &mut self,
-        input: &Vec<i32>,
+        input: &[i32],
         input_offset: &mut Cursor<i32>,
         mut input_length: i32,
-        output: &mut Vec<i32>,
+        output: &mut [i32],
         output_offset: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
         if input_length == 0 {
@@ -38,12 +38,12 @@ impl Composition {
             .compress(input, input_length, input_offset, output, output_offset)
     }
 
-    fn uncompress(
+    pub fn uncompress(
         &mut self,
-        input: &Vec<i32>,
+        input: &[i32],
         input_offset: &mut Cursor<i32>,
         mut input_length: i32,
-        output: &mut Vec<i32>,
+        output: &mut [i32],
         output_offset: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
         if input_length == 0 {
