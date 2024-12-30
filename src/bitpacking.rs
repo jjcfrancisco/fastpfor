@@ -2,7 +2,7 @@
 
 pub fn fast_pack(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize, bit: isize) {
     match bit {
-        0 => fast_pack0(input, inpos, output, outpos),
+        0 => (),
         1 => fast_pack1(input, inpos, output, outpos),
         2 => fast_pack2(input, inpos, output, outpos),
         3 => fast_pack3(input, inpos, output, outpos),
@@ -37,11 +37,6 @@ pub fn fast_pack(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize,
         32 => fast_pack32(input, inpos, output, outpos),
         _ => panic!("Unsupported bit width"),
     }
-}
-
-#[expect(unused_variables)]
-fn fast_pack0(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {
-    // Nothing
 }
 
 fn fast_pack1(input: &[i32], inpos: usize, output: &mut [i32], outpos: usize) {

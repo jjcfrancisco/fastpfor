@@ -9,9 +9,7 @@
 FastPFOR library written in Rust. Currently in development.
 
 ## To do:
-- [ ] Remove fast_pack0 function: noop
-- [ ] Implement traits for fastpfor
-- [ ] Change Ok(()) to FastPForResult in fastpfor.rs
+- [ ] Rust wrapper for the [C++ library](https://github.com/fast-pack/FastPFor): try [`cxxbridge`](https://github.com/dtolnay/cxx) or [`bindgen`](https://crates.io/crates/bindgen)
 
 ## License
 
