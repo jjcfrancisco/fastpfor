@@ -1,8 +1,8 @@
-use crate::FastPForResult;
 use std::io::Cursor;
 
-pub trait Compressor<T>
-{
+use crate::FastPForResult;
+
+pub trait Compressor<T> {
     fn compress(
         &mut self,
         input: &[i32],

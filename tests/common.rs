@@ -1,5 +1,6 @@
-use fastpfor::{Composition, FastPFOR, FastPForResult, VariableByte, Compressor};
 use std::io::Cursor;
+
+use fastpfor::{Composition, Compressor, FastPFOR, FastPForResult, VariableByte};
 
 pub enum Codec {
     VariableByte(VariableByte),
@@ -47,7 +48,9 @@ impl Codec {
 pub fn get_codecs() -> Vec<Codec> {
     vec![
         Codec::VariableByte(VariableByte::new()),
-        Codec::Composition(Composition::new(FastPFOR::default(), VariableByte::new())),
+        Codec::Composition(Composition::new(
+            FastPFOR::default(),
+            VariableByte::new(),
+        )),
     ]
 }
-

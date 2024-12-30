@@ -16,6 +16,13 @@ impl VariableByte {
     }
 }
 
+// Implemented for consistency with other codecs
+impl Default for VariableByte {
+    fn default() -> Self {
+        VariableByte::new()
+    }
+}
+
 impl Compressor<i32> for VariableByte {
     fn compress(
         &mut self,
@@ -230,7 +237,7 @@ mod tests {
     fn test_empty_int_array() {
         let input: Vec<i32> = vec![];
         let mut output: Vec<i32> = vec![];
-        let mut vb = VariableByte;
+        let mut vb = VariableByte::new();
         vb.compress(
             &input,
             0,
@@ -255,7 +262,7 @@ mod tests {
     fn test_empty_byte_array() {
         let input: Vec<i32> = vec![];
         let mut output: Vec<i8> = vec![];
-        let mut vb = VariableByte;
+        let mut vb = VariableByte::new();
         vb.compress(
             &input,
             0,

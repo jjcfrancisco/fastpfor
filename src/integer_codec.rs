@@ -1,5 +1,6 @@
-use crate::{FastPFOR, FastPForResult, VariableByte, Compressor};
 use std::io::Cursor;
+
+use crate::{Compressor, FastPFOR, FastPForResult, VariableByte};
 
 pub enum IntegerCodec {
     FastPFor(FastPFOR),
@@ -55,4 +56,3 @@ impl Compressor<i32> for IntegerCodec {
         }
     }
 }
-

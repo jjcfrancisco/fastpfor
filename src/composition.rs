@@ -1,7 +1,8 @@
-use crate::cursor::IncrementCursor;
-use crate::{FastPForResult, Compressor};
-use crate::integer_codec::IntegerCodec;
 use std::io::Cursor;
+
+use crate::cursor::IncrementCursor;
+use crate::integer_codec::IntegerCodec;
+use crate::{Compressor, FastPForResult};
 
 pub struct Composition {
     c1: IntegerCodec,
