@@ -4,7 +4,7 @@ use fastpfor::{Composition, Compressor, FastPFOR, FastPForResult, VariableByte};
 
 pub enum Codec {
     VariableByte(VariableByte),
-    Composition(Composition),
+    Composition(Box<Composition>),
 }
 
 impl Codec {
@@ -45,12 +45,13 @@ impl Codec {
     }
 }
 
+
 pub fn get_codecs() -> Vec<Codec> {
     vec![
         Codec::VariableByte(VariableByte::new()),
-        Codec::Composition(Composition::new(
+        Codec::Composition(Box::new(Composition::new(
             FastPFOR::default(),
             VariableByte::new(),
-        )),
+        ))),
     ]
 }
