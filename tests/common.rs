@@ -45,7 +45,6 @@ impl Codec {
     }
 }
 
-
 pub fn get_codecs() -> Vec<Codec> {
     vec![
         Codec::VariableByte(VariableByte::new()),
