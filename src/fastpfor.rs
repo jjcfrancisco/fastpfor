@@ -51,7 +51,7 @@ impl FastPFOR {
         let inlength = helpers::greatest_multiple(inlength, self.block_size as i32);
         if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
             // Return early if there is no data to compress
-            return Ok(());
+            return FastPForResult::Ok(());
         }
         output[out_pos.position() as usize] = inlength;
         out_pos.increment();
@@ -62,7 +62,7 @@ impl FastPFOR {
             let this_size = std::cmp::min(self.page_size, final_inpos - pos);
             self.encode_page(input, in_pos, this_size, output, out_pos);
         }
-        Ok(())
+        FastPForResult::Ok(())
     }
 
     fn encode_page(
@@ -224,7 +224,7 @@ impl FastPFOR {
     ) -> FastPForResult<()> {
         if inlength == 0 {
             // Return early if there is no data to compress
-            return Ok(());
+            return FastPForResult::Ok(());
         }
         let outlength = input[in_pos.position() as usize];
         in_pos.increment();
@@ -234,7 +234,7 @@ impl FastPFOR {
             let this_size = std::cmp::min(self.page_size, final_out - out_pos.position() as i32);
             self.decode_page(input, in_pos, output, out_pos, this_size);
         }
-        Ok(())
+        FastPForResult::Ok(())
     }
 
     fn decode_page(
