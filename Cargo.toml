@@ -1,6 +1,6 @@
 [package]
 name = "fastpfor"
-version = "0.2.0"
+version = "0.3.0"
 description = "FastPFOR library written in Rust."
 authors = ["Francisco Jimenez <jjcfrank@gmail.com>"]
 repository = "https://github.com/jjcfrancisco/fastpfor"
