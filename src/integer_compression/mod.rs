@@ -1,6 +1,5 @@
 pub mod bitpacking;
 pub mod composition;
-pub mod compressors;
 pub mod fastpfor;
 pub mod helpers;
 pub mod integer_codec;
