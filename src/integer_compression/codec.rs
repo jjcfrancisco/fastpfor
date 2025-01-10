@@ -1,8 +1,9 @@
-use crate::{FastPFOR, VariableByte};
+use crate::{FastPFOR, VariableByte, JustCopy};
 
 pub enum Codec {
     FastPFor(FastPFOR),
     VariableByte(VariableByte),
+    JustCopy(JustCopy),
 }
 
 impl From<FastPFOR> for Codec {
@@ -17,3 +18,8 @@ impl From<VariableByte> for Codec {
     }
 }
 
+impl From<JustCopy> for Codec {
+    fn from(jc: JustCopy) -> Self {
+        Codec::JustCopy(jc)
+    }
+}
