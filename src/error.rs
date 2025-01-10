@@ -10,4 +10,6 @@ pub enum FastPForError {
     CompressError(String),
     #[error("Invalid block size: {0}")]
     InvalidBlockSizeError(String),
+    #[error("Unsupported operation: {0}")]
+    UnsupportedOperationError(String),
 }

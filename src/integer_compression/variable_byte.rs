@@ -1,9 +1,8 @@
 use std::io::Cursor;
 
 use crate::integer_compression::helpers::{extract7bits, extract_7bits_maskless};
+use crate::FastPForError;
 use crate::{bytebuffer::ByteBuffer, cursor::IncrementCursor, FastPForResult, Integer, Skippable};
-//
-// use super::compressors::Skippable;
 
 #[derive(Debug)]
 pub struct VariableByte;
@@ -75,6 +74,21 @@ impl Skippable for VariableByte {
         input_offset.add(input_length);
 
         FastPForResult::Ok(())
+    }
+
+    #[expect(unused_variables)]
+    fn headless_uncompress(
+        &mut self,
+        input: &[i32],
+        input_length: i32,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
+        num: i32,
+    ) -> FastPForResult<()> {
+        FastPForResult::Err(FastPForError::UnsupportedOperationError(
+            "Unimplemented".to_string(),
+        ))
     }
 }
 

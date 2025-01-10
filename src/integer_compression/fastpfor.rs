@@ -1,7 +1,8 @@
 use std::io::Cursor;
 
-use crate::{bytebuffer, cursor::IncrementCursor, FastPForResult, Integer, Skippable};
 use crate::integer_compression::{bitpacking, helpers};
+use crate::FastPForError;
+use crate::{bytebuffer, cursor::IncrementCursor, FastPForResult, Integer, Skippable};
 
 pub const BLOCK_SIZE_256: i32 = 256;
 pub const BLOCK_SIZE_128: i32 = 128;
@@ -36,6 +37,21 @@ impl Skippable for FastPFOR {
             self.encode_page(input, input_offset, this_size, output, output_offset);
         }
         FastPForResult::Ok(())
+    }
+
+    #[expect(unused_variables)]
+    fn headless_uncompress(
+        &mut self,
+        input: &[i32],
+        inlength: i32,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
+        num: i32,
+    ) -> FastPForResult<()> {
+        FastPForResult::Err(FastPForError::UnsupportedOperationError(
+            "Unimplemented".to_string(),
+        ))
     }
 }
 
