@@ -21,7 +21,7 @@ fn saul_test() {
                     &mut output,
                     &mut output_offset,
                 )
-                .expect("Failed to compress");
+                .expect(&format!("Failed to compress with {}", codec.name()));
             let len = output_offset.position() as i32 - x;
             output_offset.set_position(x as u64);
 
@@ -33,7 +33,7 @@ fn saul_test() {
                     &mut answer,
                     &mut Cursor::new(0),
                 )
-                .expect("Failed to uncompress");
+                .expect(&format!("Failed to uncompress with {}", codec.name()));
 
             assert_eq!(input, answer);
         }
