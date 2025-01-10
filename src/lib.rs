@@ -4,12 +4,14 @@ mod error;
 mod integer_compression;
 
 pub use error::{FastPForError, FastPForResult};
-pub use integer_compression::fastpfor::{
-    FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE,
-};
-pub use integer_compression::variable_byte::VariableByte;
 pub use integer_compression::{
-    codec::Codec, composition::Composition, integer_codec::Integer, skippable_codec::Skippable,
+    codec::Codec,
+    composition::Composition,
+    fastpfor::{FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE},
+    integer_codec::Integer,
+    just_copy::JustCopy,
+    skippable_codec::Skippable,
+    variable_byte::VariableByte,
 };
 
 #[derive(Debug, PartialEq)]
