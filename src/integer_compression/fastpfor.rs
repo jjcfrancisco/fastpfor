@@ -1,8 +1,8 @@
 use std::io::Cursor;
 
+use crate::cursor::IncrementCursor;
 use crate::integer_compression::{bitpacking, helpers};
-use crate::FastPForError;
-use crate::{bytebuffer, cursor::IncrementCursor, FastPForResult, Integer, Skippable};
+use crate::{bytebuffer, FastPForError, FastPForResult, Integer, Skippable};
 
 pub const BLOCK_SIZE_256: i32 = 256;
 pub const BLOCK_SIZE_128: i32 = 128;

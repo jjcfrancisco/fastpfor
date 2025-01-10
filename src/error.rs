@@ -13,5 +13,5 @@ pub enum FastPForError {
     #[error("Unsupported operation: {0}")]
     UnsupportedOperationError(String),
     #[error("Out of bounds access")]
-    OutOfBoundsAccess
+    OutOfBoundsAccess,
 }

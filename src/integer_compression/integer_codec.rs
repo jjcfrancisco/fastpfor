@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use crate::{FastPForResult, Codec};
+use crate::{Codec, FastPForResult};
 
 pub trait Integer<T> {
     fn compress(

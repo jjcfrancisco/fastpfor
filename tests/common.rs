@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use fastpfor::{
-    Composition, Integer, JustCopy, FastPFOR, FastPForResult, VariableByte, BLOCK_SIZE_128,
+    Composition, FastPFOR, FastPForResult, Integer, JustCopy, VariableByte, BLOCK_SIZE_128,
     DEFAULT_PAGE_SIZE,
 };
 
@@ -66,13 +66,16 @@ pub fn get_codecs() -> Vec<TestCodec> {
     vec![
         TestCodec::VariableByte(VariableByte::new(), "VariableByte".to_string()),
         TestCodec::JustCopy(JustCopy::new(), "JustCopy".to_string()),
-        TestCodec::Composition(Box::new(Composition::new(
-            FastPFOR::default(),
-            VariableByte::new(),
-        )), "FastPFOR + VariableByte".to_string()),
-        TestCodec::Composition(Box::new(Composition::new(
-            FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128),
-            VariableByte::new(),
-        )), "FastPFOR + VariableByte".to_string()),
+        TestCodec::Composition(
+            Box::new(Composition::new(FastPFOR::default(), VariableByte::new())),
+            "FastPFOR + VariableByte".to_string(),
+        ),
+        TestCodec::Composition(
+            Box::new(Composition::new(
+                FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128),
+                VariableByte::new(),
+            )),
+            "FastPFOR + VariableByte".to_string(),
+        ),
     ]
 }

@@ -1,8 +1,9 @@
 use std::io::Cursor;
 
+use crate::bytebuffer::ByteBuffer;
+use crate::cursor::IncrementCursor;
 use crate::integer_compression::helpers::{extract7bits, extract_7bits_maskless};
-use crate::FastPForError;
-use crate::{bytebuffer::ByteBuffer, cursor::IncrementCursor, FastPForResult, Integer, Skippable};
+use crate::{FastPForError, FastPForResult, Integer, Skippable};
 
 #[derive(Debug)]
 pub struct VariableByte;

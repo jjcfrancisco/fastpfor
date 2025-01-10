@@ -4,15 +4,15 @@ mod error;
 mod integer_compression;
 
 pub use error::{FastPForError, FastPForResult};
-pub use integer_compression::{
-    codec::Codec,
-    composition::Composition,
-    fastpfor::{FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE},
-    integer_codec::Integer,
-    just_copy::JustCopy,
-    skippable_codec::Skippable,
-    variable_byte::VariableByte,
+pub use integer_compression::codec::Codec;
+pub use integer_compression::composition::Composition;
+pub use integer_compression::fastpfor::{
+    FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE,
 };
+pub use integer_compression::integer_codec::Integer;
+pub use integer_compression::just_copy::JustCopy;
+pub use integer_compression::skippable_codec::Skippable;
+pub use integer_compression::variable_byte::VariableByte;
 
 #[derive(Debug, PartialEq)]
 pub enum Output {

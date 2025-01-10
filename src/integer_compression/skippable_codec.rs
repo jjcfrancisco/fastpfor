@@ -55,15 +55,30 @@ impl Skippable for Codec {
         num: i32,
     ) -> FastPForResult<()> {
         match self {
-            Codec::FastPFor(fastpfor) => {
-                fastpfor.headless_uncompress(input, input_length, input_offset, output, output_offset, num)
-            }
-            Codec::VariableByte(vb) => {
-                vb.headless_uncompress(input, input_length, input_offset, output, output_offset, num)
-            }
-            Codec::JustCopy(jc) => {
-                jc.headless_uncompress(input, input_length, input_offset, output, output_offset, num)
-            }
+            Codec::FastPFor(fastpfor) => fastpfor.headless_uncompress(
+                input,
+                input_length,
+                input_offset,
+                output,
+                output_offset,
+                num,
+            ),
+            Codec::VariableByte(vb) => vb.headless_uncompress(
+                input,
+                input_length,
+                input_offset,
+                output,
+                output_offset,
+                num,
+            ),
+            Codec::JustCopy(jc) => jc.headless_uncompress(
+                input,
+                input_length,
+                input_offset,
+                output,
+                output_offset,
+                num,
+            ),
         }
     }
 }
