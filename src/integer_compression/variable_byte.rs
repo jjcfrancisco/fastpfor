@@ -1,10 +1,9 @@
 use std::io::Cursor;
 
 use crate::bytebuffer::ByteBuffer;
-use crate::compressor::Compressor;
 use crate::cursor::IncrementCursor;
-use crate::helpers::{extract7bits, extract_7bits_maskless};
-use crate::FastPForResult;
+use crate::integer_compression::helpers::{extract7bits, extract_7bits_maskless};
+use crate::{FastPForError, FastPForResult, Integer, Skippable};
 
 #[derive(Debug)]
 pub struct VariableByte;
@@ -23,7 +22,78 @@ impl Default for VariableByte {
     }
 }
 
-impl Compressor<i32> for VariableByte {
+impl Skippable for VariableByte {
+    fn headless_compress(
+        &mut self,
+        input: &[i32],
+        input_length: i32,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
+    ) -> FastPForResult<()> {
+        if input_length == 0 {
+            // Return early if there is no data to compress
+            return Ok(());
+        }
+        let mut buf = ByteBuffer::new(input_length * 8);
+        for k in input_offset.position()..(input_offset.position() + input_length as u64) {
+            let val = input[k as usize] as i64;
+            if val < (1 << 7) {
+                buf.put((val | (1 << 7)) as u8);
+            } else if val < (1 << 14) {
+                buf.put(extract7bits(0, val));
+                buf.put(extract_7bits_maskless(1, val) | (1 << 7));
+            } else if val < (1 << 21) {
+                buf.put(extract7bits(0, val));
+                buf.put(extract7bits(1, val));
+                buf.put(extract_7bits_maskless(2, val) | (1 << 7));
+            } else if val < (1 << 28) {
+                buf.put(extract7bits(0, val));
+                buf.put(extract7bits(1, val));
+                buf.put(extract7bits(2, val));
+                buf.put(extract_7bits_maskless(3, val) | (1 << 7));
+            } else {
+                buf.put(extract7bits(0, val));
+                buf.put(extract7bits(1, val));
+                buf.put(extract7bits(2, val));
+                buf.put(extract7bits(3, val));
+                buf.put(extract_7bits_maskless(4, val) | (1 << 7));
+            }
+        }
+        while buf.position() % 4 != 0 {
+            buf.put(0);
+        }
+        let length = buf.position();
+        buf.flip();
+        let ibuf = buf.as_int_buffer();
+        ibuf.get(
+            output,
+            output_offset.position() as usize,
+            (length / 4) as usize,
+        );
+        output_offset.add((length / 4) as i32);
+        input_offset.add(input_length);
+
+        FastPForResult::Ok(())
+    }
+
+    #[expect(unused_variables)]
+    fn headless_uncompress(
+        &mut self,
+        input: &[i32],
+        input_length: i32,
+        input_offset: &mut Cursor<i32>,
+        output: &mut [i32],
+        output_offset: &mut Cursor<i32>,
+        num: i32,
+    ) -> FastPForResult<()> {
+        FastPForResult::Err(FastPForError::UnsupportedOperationError(
+            "Unimplemented".to_string(),
+        ))
+    }
+}
+
+impl Integer<i32> for VariableByte {
     fn compress(
         &mut self,
         input: &[i32],
@@ -32,7 +102,7 @@ impl Compressor<i32> for VariableByte {
         output: &mut [i32],
         output_offset: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
-        headless_compress(input, input_length, input_offset, output, output_offset)
+        self.headless_compress(input, input_length, input_offset, output, output_offset)
     }
 
     fn uncompress(
@@ -75,7 +145,7 @@ impl Compressor<i32> for VariableByte {
     }
 }
 
-impl Compressor<i8> for VariableByte {
+impl Integer<i8> for VariableByte {
     fn compress(
         &mut self,
         input: &[i32],
@@ -174,59 +244,6 @@ impl Compressor<i8> for VariableByte {
         input_offset.add(input_length);
         FastPForResult::Ok(())
     }
-}
-
-fn headless_compress(
-    input: &[i32],
-    input_length: i32,
-    input_offset: &mut Cursor<i32>,
-    output: &mut [i32],
-    output_offset: &mut Cursor<i32>,
-) -> FastPForResult<()> {
-    if input_length == 0 {
-        // Return early if there is no data to compress
-        return Ok(());
-    }
-    let mut buf = ByteBuffer::new(input_length * 8);
-    for k in input_offset.position()..(input_offset.position() + input_length as u64) {
-        let val = input[k as usize] as i64;
-        if val < (1 << 7) {
-            buf.put((val | (1 << 7)) as u8);
-        } else if val < (1 << 14) {
-            buf.put(extract7bits(0, val));
-            buf.put(extract_7bits_maskless(1, val) | (1 << 7));
-        } else if val < (1 << 21) {
-            buf.put(extract7bits(0, val));
-            buf.put(extract7bits(1, val));
-            buf.put(extract_7bits_maskless(2, val) | (1 << 7));
-        } else if val < (1 << 28) {
-            buf.put(extract7bits(0, val));
-            buf.put(extract7bits(1, val));
-            buf.put(extract7bits(2, val));
-            buf.put(extract_7bits_maskless(3, val) | (1 << 7));
-        } else {
-            buf.put(extract7bits(0, val));
-            buf.put(extract7bits(1, val));
-            buf.put(extract7bits(2, val));
-            buf.put(extract7bits(3, val));
-            buf.put(extract_7bits_maskless(4, val) | (1 << 7));
-        }
-    }
-    while buf.position() % 4 != 0 {
-        buf.put(0);
-    }
-    let length = buf.position();
-    buf.flip();
-    let ibuf = buf.as_int_buffer();
-    ibuf.get(
-        output,
-        output_offset.position() as usize,
-        (length / 4) as usize,
-    );
-    output_offset.add((length / 4) as i32);
-    input_offset.add(input_length);
-
-    FastPForResult::Ok(())
 }
 
 #[cfg(test)]

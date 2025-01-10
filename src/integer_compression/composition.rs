@@ -1,19 +1,18 @@
 use std::io::Cursor;
 
 use crate::cursor::IncrementCursor;
-use crate::integer_codec::IntegerCodec;
-use crate::{Compressor, FastPForResult};
+use crate::{Codec, FastPForResult, Integer};
 
 pub struct Composition {
-    c1: IntegerCodec,
-    c2: IntegerCodec,
+    c1: Codec,
+    c2: Codec,
 }
 
 impl Composition {
     pub fn new<C1, C2>(c1: C1, c2: C2) -> Self
     where
-        C1: Into<IntegerCodec>,
-        C2: Into<IntegerCodec>,
+        C1: Into<Codec>,
+        C2: Into<Codec>,
     {
         Composition {
             c1: c1.into(),
@@ -70,8 +69,8 @@ impl Composition {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fastpfor::FastPFOR;
-    use crate::variable_byte::VariableByte;
+    use crate::integer_compression::fastpfor::FastPFOR;
+    use crate::integer_compression::variable_byte::VariableByte;
 
     #[test]
     fn test_composition() {

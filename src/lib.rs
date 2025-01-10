@@ -1,19 +1,18 @@
-mod bitpacking;
-mod bytebuffer;
-mod composition;
-mod compressor;
+pub mod bytebuffer;
 mod cursor;
 mod error;
-mod fastpfor;
-mod helpers;
-mod integer_codec;
-mod variable_byte;
+mod integer_compression;
 
-pub use composition::Composition;
-pub use compressor::Compressor;
 pub use error::{FastPForError, FastPForResult};
-pub use fastpfor::{FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE};
-pub use variable_byte::VariableByte;
+pub use integer_compression::codec::Codec;
+pub use integer_compression::composition::Composition;
+pub use integer_compression::fastpfor::{
+    FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE,
+};
+pub use integer_compression::integer_codec::Integer;
+pub use integer_compression::just_copy::JustCopy;
+pub use integer_compression::skippable_codec::Skippable;
+pub use integer_compression::variable_byte::VariableByte;
 
 #[derive(Debug, PartialEq)]
 pub enum Output {
