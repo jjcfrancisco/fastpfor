@@ -12,4 +12,6 @@ pub enum FastPForError {
     InvalidBlockSizeError(String),
     #[error("Unsupported operation: {0}")]
     UnsupportedOperationError(String),
+    #[error("Out of bounds access")]
+    OutOfBoundsAccess
 }
