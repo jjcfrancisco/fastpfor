@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use crate::{FastPForResult, Integer, Skippable};
+use crate::{FastPForError, FastPForResult, Integer, Skippable};
 
 #[derive(Debug)]
 pub struct JustCopy;
@@ -26,10 +26,20 @@ impl Skippable for JustCopy {
         output: &mut [i32],
         output_offset: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
-        output[output_offset.position() as usize..]
-            .copy_from_slice(&input[input_offset.position() as usize..]);
-        input_offset.set_position(input_length as u64);
-        output_offset.set_position(input_length as u64);
+        let start_input = input_offset.position() as usize;
+        let end_input = start_input + input_length as usize;
+        let start_output = output_offset.position() as usize;
+        let end_output = start_output + input_length as usize;
+
+        if end_input > input.len() || end_output > output.len() {
+            return FastPForResult::Err(FastPForError::OutOfBoundsAccess);
+        }
+
+        output[start_output..end_output].copy_from_slice(&input[start_input..end_input]);
+
+        input_offset.set_position(end_input as u64);
+        output_offset.set_position(end_output as u64);
+
         FastPForResult::Ok(())
     }
 
@@ -42,11 +52,19 @@ impl Skippable for JustCopy {
         output_offset: &mut Cursor<i32>,
         num: i32,
     ) -> FastPForResult<()> {
-        output[output_offset.position() as usize..]
-            .copy_from_slice(&input[input_offset.position() as usize..]);
-        input_offset.set_position(num as u64);
-        input_offset.set_position(num as u64);
-        output_offset.set_position(num as u64);
+        let start_input = input_offset.position() as usize;
+        let end_input = start_input + num as usize;
+        let start_output = output_offset.position() as usize;
+        let end_output = start_output + num as usize;
+
+        if end_input > input.len() || end_output > output.len() {
+            return FastPForResult::Err(FastPForError::OutOfBoundsAccess);
+        }
+
+        output[start_output..end_output].copy_from_slice(&input[start_input..end_input]);
+
+        input_offset.set_position(end_input as u64);
+        output_offset.set_position(end_output as u64);
         FastPForResult::Ok(())
     }
 }
@@ -71,45 +89,22 @@ impl Integer<i32> for JustCopy {
         output: &mut [i32],
         output_offset: &mut Cursor<i32>,
     ) -> FastPForResult<()> {
-        output[output_offset.position() as usize..]
-            .copy_from_slice(&input[input_offset.position() as usize..]);
-        input_offset.set_position(input_length as u64);
-        output_offset.set_position(input_length as u64);
+        let start_input = input_offset.position() as usize;
+        let end_input = start_input + input_length as usize;
+        let start_output = output_offset.position() as usize;
+        let end_output = start_output + input_length as usize;
+
+        // Ensure we don't exceed the slice bounds
+        if end_input > input.len() || end_output > output.len() {
+            return FastPForResult::Err(FastPForError::OutOfBoundsAccess);
+        }
+
+        output[start_output..end_output].copy_from_slice(&input[start_input..end_input]);
+
+        // Update the cursor positions
+        input_offset.set_position(end_input as u64);
+        output_offset.set_position(end_output as u64);
+
         FastPForResult::Ok(())
     }
 }
-
-// @Override
-// public void compress(int[] in, IntWrapper inpos, int inlength,
-//         int[] out, IntWrapper outpos) {
-//     headlessCompress(in,inpos,inlength,out,outpos);
-// }
-//
-// @Override
-// public void uncompress(int[] in, IntWrapper inpos, int inlength,
-//         int[] out, IntWrapper outpos) {
-//     headlessUncompress(in,inpos,inlength,out,outpos,inlength);
-// }
-
-// @Override
-// public String toString() {
-//         return this.getClass().getSimpleName();
-// }
-//
-// @Override
-// public void headlessCompress(int[] in, IntWrapper inpos, int inlength,
-//         int[] out, IntWrapper outpos) {
-//         System.arraycopy(in, inpos.get(), out, outpos.get(), inlength);
-//         inpos.add(inlength);
-//         outpos.add(inlength);
-// }
-//
-// @Override
-// public void headlessUncompress(int[] in, IntWrapper inpos, int inlength,
-//         int[] out, IntWrapper outpos, int num) {
-//     System.arraycopy(in, inpos.get(), out, outpos.get(), num);
-//     inpos.add(num);
-//     outpos.add(num);
-//
-// }
-//
