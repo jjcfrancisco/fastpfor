@@ -38,6 +38,9 @@ impl Integer<i32> for Codec {
             Codec::VariableByte(vb) => {
                 vb.compress(input, input_length, input_offset, output, output_offset)
             }
+            Codec::JustCopy(jc) => {
+                jc.compress(input, input_length, input_offset, output, output_offset)
+            }
         }
     }
 
@@ -55,6 +58,9 @@ impl Integer<i32> for Codec {
             }
             Codec::VariableByte(vb) => {
                 vb.uncompress(input, input_length, input_offset, output, output_offset)
+            }
+            Codec::JustCopy(jc) => {
+                jc.uncompress(input, input_length, input_offset, output, output_offset)
             }
         }
     }
