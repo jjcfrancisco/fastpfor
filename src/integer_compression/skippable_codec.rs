@@ -39,6 +39,9 @@ impl Skippable for Codec {
             Codec::VariableByte(vb) => {
                 vb.headless_compress(input, input_length, input_offset, output, output_offset)
             }
+            Codec::JustCopy(jc) => {
+                jc.headless_compress(input, input_length, input_offset, output, output_offset)
+            }
         }
     }
 
@@ -57,6 +60,9 @@ impl Skippable for Codec {
             }
             Codec::VariableByte(vb) => {
                 vb.headless_uncompress(input, input_length, input_offset, output, output_offset, num)
+            }
+            Codec::JustCopy(jc) => {
+                jc.headless_uncompress(input, input_length, input_offset, output, output_offset, num)
             }
         }
     }
