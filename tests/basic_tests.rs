@@ -21,7 +21,9 @@ fn saul_test() {
                     &mut output,
                     &mut output_offset,
                 )
-                .expect(&format!("Failed to compress with {}", codec.name()));
+                .unwrap_or_else(|e| {
+                    panic!("Failed to compress with {}: {:?}", codec.name(), e);
+                });
             let len = output_offset.position() as i32 - x;
             output_offset.set_position(x as u64);
 
@@ -33,7 +35,9 @@ fn saul_test() {
                     &mut answer,
                     &mut Cursor::new(0),
                 )
-                .expect(&format!("Failed to uncompress with {}", codec.name()));
+                .unwrap_or_else(|e| {
+                    panic!("Failed to uncompress with {}: {:?}", codec.name(), e);
+                });
 
             assert_eq!(input, answer);
         }
@@ -61,7 +65,9 @@ fn test_varying_length() {
                     &mut output_compress,
                     &mut Cursor::new(0),
                 )
-                .expect("Failed to compress");
+                .unwrap_or_else(|e| {
+                    panic!("Failed to compress with {}: {:?}", codec.name(), e);
+                });
             let mut answer = vec![0; l + 1024];
             codec
                 .uncompress(
@@ -71,7 +77,9 @@ fn test_varying_length() {
                     &mut answer,
                     &mut Cursor::new(0),
                 )
-                .expect("Failed to uncompress");
+                .unwrap_or_else(|e| {
+                    panic!("Failed to uncompress with {}: {:?}", codec.name(), e);
+                });
             for k in 0..l {
                 assert_eq!(answer[k], data[k]);
             }
@@ -98,7 +106,9 @@ fn test_varying_length_two() {
                     &mut output_compress,
                     &mut Cursor::new(0),
                 )
-                .expect("Failed to compress");
+                .unwrap_or_else(|e| {
+                    panic!("Failed to compress with {}: {:?}", codec.name(), e);
+                });
             let mut answer = vec![0; data_copy.len() + 1024];
             codec
                 .uncompress(
@@ -108,10 +118,12 @@ fn test_varying_length_two() {
                     &mut answer,
                     &mut Cursor::new(0),
                 )
-                .expect("Failed to uncompress");
+                .unwrap_or_else(|e| {
+                    panic!("Failed to uncompress with {}: {:?}", codec.name(), e);
+                });
             for k in 1..l {
                 if answer[k] != data[k] {
-                    panic!("bug");
+                    assert_eq!(answer[k], data[k]);
                 }
             }
         }
