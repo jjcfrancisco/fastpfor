@@ -25,11 +25,11 @@ impl Default for VariableByte {
 impl Skippable for VariableByte {
     fn headless_compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         if input_length == 0 {
             // Return early if there is no data to compress
@@ -71,7 +71,7 @@ impl Skippable for VariableByte {
             output_offset.position() as usize,
             (length / 4) as usize,
         );
-        output_offset.add((length / 4) as i32);
+        output_offset.add(length / 4);
         input_offset.add(input_length);
 
         FastPForResult::Ok(())
@@ -80,12 +80,12 @@ impl Skippable for VariableByte {
     #[expect(unused_variables)]
     fn headless_uncompress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
-        num: i32,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
+        num: u32,
     ) -> FastPForResult<()> {
         FastPForResult::Err(FastPForError::UnsupportedOperationError(
             "Unimplemented".to_string(),
@@ -93,30 +93,30 @@ impl Skippable for VariableByte {
     }
 }
 
-impl Integer<i32> for VariableByte {
+impl Integer<u32> for VariableByte {
     fn compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         self.headless_compress(input, input_length, input_offset, output, output_offset)
     }
 
     fn uncompress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         let mut s = 0;
         let mut val = 0;
-        let mut p = input_offset.position() as i32;
-        let final_p = input_offset.position() as i32 + input_length;
+        let mut p = input_offset.position() as u32;
+        let final_p = input_offset.position() as u32 + input_length;
         let mut tmp_outpos = output_offset.position();
         let mut shift = 0;
         let mut v = 0;
@@ -148,18 +148,18 @@ impl Integer<i32> for VariableByte {
 impl Integer<i8> for VariableByte {
     fn compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
         output: &mut [i8],
-        output_offset: &mut Cursor<i32>,
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         if input_length == 0 {
             // Return early if there is no data to compress
             return Ok(());
         }
         let mut out_pos_tmp = output_offset.position();
-        for k in input_offset.position() as i32..(input_offset.position() as i32 + input_length) {
+        for k in input_offset.position() as u32..(input_offset.position() as u32 + input_length) {
             let val = input[k as usize] as i64;
             if val < (1 << 7) {
                 output[out_pos_tmp as usize] = (val | (1 << 7)) as i8;
@@ -205,13 +205,13 @@ impl Integer<i8> for VariableByte {
     fn uncompress(
         &mut self,
         input: &[i8],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
-        let mut p = input_offset.position() as i32;
-        let final_p = input_offset.position() as i32 + input_length;
+        let mut p = input_offset.position() as u32;
+        let final_p = input_offset.position() as u32 + input_length;
         let mut tmp_outpos = output_offset.position();
         let mut v = 0;
         while p < final_p {
@@ -237,7 +237,7 @@ impl Integer<i8> for VariableByte {
             }
             v |= (input[p as usize + 4] as i32) << 28;
             p += 5;
-            output[tmp_outpos as usize] = v;
+            output[tmp_outpos as usize] = v as u32;
             tmp_outpos += 1;
         }
         output_offset.set_position(tmp_outpos);
@@ -252,8 +252,8 @@ mod tests {
 
     #[test]
     fn test_empty_int_array() {
-        let input: Vec<i32> = vec![];
-        let mut output: Vec<i32> = vec![];
+        let input: Vec<u32> = vec![];
+        let mut output: Vec<u32> = vec![];
         let mut vb = VariableByte::new();
         vb.compress(
             &input,
@@ -263,10 +263,10 @@ mod tests {
             &mut Cursor::new(0),
         )
         .expect("Failed to compress");
-        let mut answer: Vec<i32> = vec![];
+        let mut answer: Vec<u32> = vec![];
         vb.uncompress(
             &output,
-            output.len() as i32,
+            output.len() as u32,
             &mut Cursor::new(0),
             &mut answer,
             &mut Cursor::new(0),
@@ -277,7 +277,7 @@ mod tests {
 
     #[test]
     fn test_empty_byte_array() {
-        let input: Vec<i32> = vec![];
+        let input: Vec<u32> = vec![];
         let mut output: Vec<i8> = vec![];
         let mut vb = VariableByte::new();
         vb.compress(
@@ -288,10 +288,10 @@ mod tests {
             &mut Cursor::new(0),
         )
         .expect("Failed to compress");
-        let mut answer: Vec<i32> = vec![];
+        let mut answer: Vec<u32> = vec![];
         vb.uncompress(
             &output,
-            output.len() as i32,
+            output.len() as u32,
             &mut Cursor::new(0),
             &mut answer,
             &mut Cursor::new(0),

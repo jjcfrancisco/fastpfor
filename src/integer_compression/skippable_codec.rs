@@ -5,32 +5,32 @@ use crate::{Codec, FastPForResult};
 pub trait Skippable {
     fn headless_compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()>;
 
     fn headless_uncompress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
-        num: i32,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
+        num: u32,
     ) -> FastPForResult<()>;
 }
 
 impl Skippable for Codec {
     fn headless_compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         match self {
             Codec::FastPFor(fastpfor) => {
@@ -47,12 +47,12 @@ impl Skippable for Codec {
 
     fn headless_uncompress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
-        num: i32,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
+        num: u32,
     ) -> FastPForResult<()> {
         match self {
             Codec::FastPFor(fastpfor) => fastpfor.headless_uncompress(

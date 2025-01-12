@@ -22,11 +22,11 @@ impl Composition {
 
     pub fn compress(
         &mut self,
-        input: &[i32],
-        mut input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        mut input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         if input_length == 0 {
             // Return early if there is no data to compress
@@ -40,27 +40,27 @@ impl Composition {
             output[outpos_init as usize] = 0;
             output_offset.increment();
         }
-        input_length -= input_offset.position() as i32 - inpos_init as i32;
+        input_length -= input_offset.position() as u32 - inpos_init as u32;
         self.c2
             .compress(input, input_length, input_offset, output, output_offset)
     }
 
     pub fn uncompress(
         &mut self,
-        input: &[i32],
-        mut input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        mut input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         if input_length == 0 {
             // Return early if there is no data to compress
             return Ok(());
         }
-        let final_init = input_offset.position() as i32;
+        let final_init = input_offset.position() as u32;
         self.c1
             .uncompress(input, input_length, input_offset, output, output_offset)?;
-        input_length -= input_offset.position() as i32 - final_init;
+        input_length -= input_offset.position() as u32 - final_init;
         self.c2
             .uncompress(input, input_length, input_offset, output, output_offset)
     }
