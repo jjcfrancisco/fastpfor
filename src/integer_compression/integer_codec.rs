@@ -5,31 +5,31 @@ use crate::{Codec, FastPForResult};
 pub trait Integer<T> {
     fn compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
         output: &mut [T],
-        output_offset: &mut Cursor<i32>,
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()>;
 
     fn uncompress(
         &mut self,
         input: &[T],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()>;
 }
 
-impl Integer<i32> for Codec {
+impl Integer<u32> for Codec {
     fn compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         match self {
             Codec::FastPFor(fastpfor) => {
@@ -46,11 +46,11 @@ impl Integer<i32> for Codec {
 
     fn uncompress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         match self {
             Codec::FastPFor(fastpfor) => {

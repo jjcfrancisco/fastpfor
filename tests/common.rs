@@ -21,11 +21,11 @@ impl TestCodec {
     }
     pub fn compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         match self {
             TestCodec::VariableByte(vb, _) => {
@@ -42,11 +42,11 @@ impl TestCodec {
 
     pub fn uncompress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         match self {
             TestCodec::VariableByte(vb, _) => {

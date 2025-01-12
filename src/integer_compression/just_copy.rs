@@ -20,11 +20,11 @@ impl Default for JustCopy {
 impl Skippable for JustCopy {
     fn headless_compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         let start_input = input_offset.position() as usize;
         let end_input = start_input + input_length as usize;
@@ -45,12 +45,12 @@ impl Skippable for JustCopy {
 
     fn headless_uncompress(
         &mut self,
-        input: &[i32],
-        #[expect(unused)] input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
-        num: i32,
+        input: &[u32],
+        #[expect(unused)] input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
+        num: u32,
     ) -> FastPForResult<()> {
         let start_input = input_offset.position() as usize;
         let end_input = start_input + num as usize;
@@ -69,25 +69,25 @@ impl Skippable for JustCopy {
     }
 }
 
-impl Integer<i32> for JustCopy {
+impl Integer<u32> for JustCopy {
     fn compress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         self.headless_compress(input, input_length, input_offset, output, output_offset)
     }
 
     fn uncompress(
         &mut self,
-        input: &[i32],
-        input_length: i32,
-        input_offset: &mut Cursor<i32>,
-        output: &mut [i32],
-        output_offset: &mut Cursor<i32>,
+        input: &[u32],
+        input_length: u32,
+        input_offset: &mut Cursor<u32>,
+        output: &mut [u32],
+        output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         let start_input = input_offset.position() as usize;
         let end_input = start_input + input_length as usize;
