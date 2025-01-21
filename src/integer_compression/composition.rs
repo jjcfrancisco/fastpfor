@@ -19,8 +19,10 @@ impl Composition {
             c2: c2.into(),
         }
     }
+}
 
-    pub fn compress(
+impl Integer<u32> for Composition {
+    fn compress(
         &mut self,
         input: &[u32],
         mut input_length: u32,
@@ -45,7 +47,7 @@ impl Composition {
             .compress(input, input_length, input_offset, output, output_offset)
     }
 
-    pub fn uncompress(
+    fn uncompress(
         &mut self,
         input: &[u32],
         mut input_length: u32,
