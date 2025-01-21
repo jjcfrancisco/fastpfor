@@ -2,7 +2,7 @@ use std::io::Cursor;
 
 use crate::cursor::IncrementCursor;
 use crate::integer_compression::{bitpacking, helpers};
-use crate::{bytebuffer, FastPForError, FastPForResult, Integer, Skippable};
+use crate::{bytebuffer, FastPForResult, Integer, Skippable};
 
 pub const BLOCK_SIZE_256: u32 = 256;
 pub const BLOCK_SIZE_128: u32 = 128;
@@ -49,9 +49,18 @@ impl Skippable for FastPFOR {
         output_offset: &mut Cursor<u32>,
         num: u32,
     ) -> FastPForResult<()> {
-        FastPForResult::Err(FastPForError::UnsupportedOperationError(
-            "Unimplemented".to_string(),
-        ))
+        if inlength == 0 && self.block_size == BLOCK_SIZE_128 {
+            // Return early if there is no data to compress and block size is 128
+            return FastPForResult::Ok(());
+        }
+        let mynvalue = helpers::greatest_multiple(inlength, self.block_size);
+        let final_out = output_offset.position() as u32 + mynvalue;
+        while output_offset.position() as u32 != final_out {
+            let this_size =
+                std::cmp::min(self.page_size, final_out - output_offset.position() as u32);
+            self.decode_page(input, input_offset, output, output_offset, this_size);
+        }
+        FastPForResult::Ok(())
     }
 }
 
@@ -65,7 +74,7 @@ impl Integer<u32> for FastPFOR {
         output_offset: &mut Cursor<u32>,
     ) -> FastPForResult<()> {
         let inlength = helpers::greatest_multiple(input_length, self.block_size);
-        if self.block_size == BLOCK_SIZE_256 && inlength == 0 {
+        if inlength == 0 {
             // Return early if there is no data to compress
             return FastPForResult::Ok(());
         }
@@ -88,14 +97,14 @@ impl Integer<u32> for FastPFOR {
         }
         let outlength = input[input_offset.position() as usize];
         input_offset.increment();
-        let mynvalue = helpers::greatest_multiple(outlength, self.block_size);
-        let final_out = output_offset.position() as u32 + mynvalue;
-        while output_offset.position() as u32 != final_out {
-            let this_size =
-                std::cmp::min(self.page_size, final_out - output_offset.position() as u32);
-            self.decode_page(input, input_offset, output, output_offset, this_size);
-        }
-        FastPForResult::Ok(())
+        self.headless_uncompress(
+            input,
+            outlength,
+            input_offset,
+            output,
+            output_offset,
+            outlength,
+        )
     }
 }
 
