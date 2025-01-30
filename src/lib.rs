@@ -7,6 +7,7 @@ pub use error::{FastPForError, FastPForResult};
 pub use integer_compression::bitpacking::{fast_pack, fast_unpack};
 pub use integer_compression::codec::Codec;
 pub use integer_compression::composition::Composition;
+pub use integer_compression::differential::Delta;
 pub use integer_compression::fastpfor::{
     FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE,
 };
