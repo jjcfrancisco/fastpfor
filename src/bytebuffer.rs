@@ -1,19 +1,19 @@
 #[derive(Debug)]
 pub struct ByteBuffer {
     pub buffer: Vec<u8>,
-    position: i32,
-    limit: i32,
-    capacity: i32,
+    position: u32,
+    limit: u32,
+    capacity: u32,
 }
 
 #[derive(Debug)]
 pub struct IntBuffer {
-    pub buffer: Vec<i32>,
+    pub buffer: Vec<u32>,
 }
 
 impl ByteBuffer {
     // Create a new ByteBuffer with the specified capacity
-    pub fn new(capacity: i32) -> Self {
+    pub fn new(capacity: u32) -> Self {
         ByteBuffer {
             buffer: vec![0; capacity as usize],
             position: 0,
@@ -29,13 +29,13 @@ impl ByteBuffer {
     }
 
     // Get the current position
-    pub fn position(&self) -> i32 {
+    pub fn position(&self) -> u32 {
         self.position
     }
 
     // Set a new position
-    pub fn set_position(&mut self, pos: i32) {
-        if pos > self.limit as i32 {
+    pub fn set_position(&mut self, pos: u32) {
+        if pos > self.limit {
             panic!("Position exceeds limit");
         }
         self.position = pos;
@@ -43,7 +43,7 @@ impl ByteBuffer {
 
     // Write a single byte to the buffer
     pub fn put(&mut self, byte: u8) {
-        if self.position >= self.limit as i32 {
+        if self.position >= self.limit {
             panic!("Buffer overflow");
         }
 
@@ -58,7 +58,7 @@ impl ByteBuffer {
 
     // Read a single byte from the buffer
     pub fn get(&mut self) -> u8 {
-        if self.position >= self.limit as i32 {
+        if self.position >= self.limit {
             panic!("Buffer underflow");
         }
         let byte = self.buffer[self.position as usize];
@@ -91,7 +91,7 @@ impl ByteBuffer {
                 for chunk in self.buffer.chunks(4) {
                     let mut bytes = [0; 4];
                     bytes.copy_from_slice(chunk);
-                    result.push(i32::from_le_bytes(bytes));
+                    result.push(u32::from_le_bytes(bytes));
                 }
                 result
             },
@@ -101,17 +101,14 @@ impl ByteBuffer {
 
 impl IntBuffer {
     // Create a new IntBuffer with the specified capacity
-    pub fn get(&self, dst: &mut [i32], offset: usize, length: usize) {
+    pub fn get(&self, dst: &mut [u32], offset: usize, length: usize) {
         if offset + length > dst.len() {
             panic!("Buffer overflow");
         }
         dst[offset..offset + length].copy_from_slice(&self.buffer[..length]);
     }
 
-    // for (int i = off; i < off + len; i++)
-    //          dst.put(src[i]);
-
-    pub fn put(&mut self, src: &[i32], offset: usize, length: i32) -> Vec<u8> {
+    pub fn put(&mut self, src: &[u32], offset: usize, length: u32) -> Vec<u8> {
         if offset + length as usize > src.len() {
             panic!("Buffer underflow");
         };
@@ -120,11 +117,5 @@ impl IntBuffer {
             result.extend_from_slice(&src[i].to_le_bytes());
         }
         result
-
-        // if offset + length as usize > src.len() {
-        //     panic!("Buffer underflow");
-        // }
-        // self.buffer
-        //     .extend_from_slice(&src[offset..offset + length as usize]);
     }
 }

@@ -4,6 +4,7 @@ mod error;
 mod integer_compression;
 
 pub use error::{FastPForError, FastPForResult};
+pub use integer_compression::bitpacking::{fast_pack, fast_unpack};
 pub use integer_compression::codec::Codec;
 pub use integer_compression::composition::Composition;
 pub use integer_compression::fastpfor::{

@@ -1,8 +1,8 @@
-pub fn greatest_multiple(value: i32, factor: i32) -> i32 {
+pub fn greatest_multiple(value: u32, factor: u32) -> u32 {
     value - value % factor
 }
 
-pub fn bits(i: i32) -> usize {
+pub fn bits(i: u32) -> usize {
     32 - i.leading_zeros() as usize
 }
 
