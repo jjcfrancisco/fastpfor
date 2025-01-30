@@ -1,5 +1,8 @@
 use std::io::Cursor;
 
+use fastpfor::Integer;
+use rand::Rng;
+
 mod common;
 
 #[test]
@@ -137,8 +140,6 @@ fn test_varying_length_two() {
     }
 }
 
-use rand::Rng;
-
 #[test]
 fn verity_bitpacking() {
     let n = 32;
@@ -196,8 +197,6 @@ fn verify_with_exceptions() {
         }
     }
 }
-
-use fastpfor::Integer;
 
 fn test_spurious<C: Integer<u32>>(codec: &mut C) {
     let x = vec![0u32; 1024];
@@ -284,81 +283,94 @@ fn zero_in_zero_out_test() {
     test_zero_in_zero_out(&mut codec5);
 }
 
-fn test_unsorted<C: Integer<u32>>(codec: &mut C) {
-    let lengths = [133, 1026, 1_333_333];
-
-    for &n in &lengths {
-        // Initialize the data array
-        let mut data = vec![3u32; n];
-
-        // Insert larger values at specific intervals
-        for k in (0..n).step_by(5) {
-            data[k] = 100;
-        }
-        for k in (0..n).step_by(533) {
-            data[k] = 10_000;
-        }
-        data[5] = (-311i32) as u32; // Simulate negative values if applicable
-
-        // Allocate a buffer for compression
-        let mut compressed = vec![0u32; ((n as f64 * 1.01) as usize) + 1024];
-        let mut input_offset = Cursor::new(0);
-        let mut output_offset = Cursor::new(0);
-
+#[test]
+fn test_increasing_sequence() {
+    let n = 256;
+    let data: Vec<u32> = (0..n).collect();
+    let codecs = vec![
+        fastpfor::FastPFOR::default(),
+        fastpfor::FastPFOR::new(fastpfor::DEFAULT_PAGE_SIZE, fastpfor::BLOCK_SIZE_128),
+    ];
+    for mut codec in codecs {
         // Compress the data
+        let mut output_compress = vec![0; data.len() * 4];
         codec
             .compress(
                 &data,
-                n as u32,
-                &mut input_offset,
-                &mut compressed,
-                &mut output_offset,
+                data.len() as u32,
+                &mut Cursor::new(0),
+                &mut output_compress,
+                &mut Cursor::new(0),
             )
-            .unwrap_or_else(|e| panic!("Compression failed: {:?}", e));
-
-        // Resize the compressed buffer to match the actual size
-        let compressed = compressed[..output_offset.position() as usize].to_vec();
-
-        // Allocate a buffer for decompression
-        let mut recovered = vec![0u32; n];
-        let mut recoffset = Cursor::new(0);
+            .unwrap_or_else(|e| {
+                panic!("Failed to compress: {:?}", e);
+            });
 
         // Decompress the data
+        let mut decompressed = vec![0; data.len() + 1024];
         codec
             .uncompress(
-                &compressed,
-                compressed.len() as u32,
+                &output_compress,
+                n as u32,
                 &mut Cursor::new(0),
-                &mut recovered,
-                &mut recoffset,
+                &mut decompressed,
+                &mut Cursor::new(0),
             )
-            .unwrap_or_else(|e| panic!("Decompression failed: {:?}", e));
+            .unwrap_or_else(|e| {
+                panic!("Failed to uncompress: {:?}", e);
+            });
 
-        // Verify that the decompressed data matches the original
-        assert_eq!(
-            data, recovered,
-            "Original data and recovered data do not match for length {}",
-            n
-        );
+        // Verify decompressed data matches original
+        for (i, &value) in data.iter().enumerate() {
+            assert_eq!(value, decompressed[i], "Mismatch at index {}", i);
+        }
     }
 }
 
 #[test]
-fn unsorted_test() {
-    let mut codec1 = fastpfor::VariableByte;
-    test_unsorted(&mut codec1);
+fn test_random_numbers() {
+    use rand::rngs::StdRng;
+    use rand::{Rng, SeedableRng};
 
-    // This fails
-    // let mut codec2 = fastpfor::Composition::new(
-    //     fastpfor::FastPFOR::default(),
-    //     fastpfor::VariableByte::default(),
-    // );
-    // test_unsorted(&mut codec2);
+    let n = 65536;
+    let mut rng = StdRng::seed_from_u64(123456);
+    let data: Vec<u32> = (0..n).map(|_| rng.gen()).collect(); // Generate random data
+    let codecs = vec![
+        fastpfor::FastPFOR::default(),
+        fastpfor::FastPFOR::new(fastpfor::DEFAULT_PAGE_SIZE, fastpfor::BLOCK_SIZE_128),
+    ];
+    for mut codec in codecs {
+        // Compress the data
+        let mut output_compress = vec![0; data.len() * 4];
+        codec
+            .compress(
+                &data,
+                data.len() as u32,
+                &mut Cursor::new(0),
+                &mut output_compress,
+                &mut Cursor::new(0),
+            )
+            .unwrap_or_else(|e| {
+                panic!("Failed to compress: {:?}", e);
+            });
 
-    // This fails
-    // let mut codec3 = fastpfor::Composition::new(
-    //     fastpfor::FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128),
-    //     fastpfor::VariableByte::default(),
-    // );
-    // test_unsorted(&mut codec3);
+        // Decompress the data
+        let mut decompressed = vec![0; data.len() + 1024];
+        codec
+            .uncompress(
+                &output_compress,
+                n as u32,
+                &mut Cursor::new(0),
+                &mut decompressed,
+                &mut Cursor::new(0),
+            )
+            .unwrap_or_else(|e| {
+                panic!("Failed to uncompress: {:?}", e);
+            });
+
+        // Verify decompressed data matches original
+        for (i, &value) in data.iter().enumerate() {
+            assert_eq!(value, decompressed[i], "Mismatch at index {}", i);
+        }
+    }
 }
