@@ -1294,6 +1294,7 @@ fn fast_pack31(input: &[u32], inpos: usize, output: &mut [u32], outpos: usize) {
     output[29 + outpos] = (input[29 + inpos] & 2147483647) >> (31 - 2) | (input[30 + inpos]) << 2;
     output[30 + outpos] = (input[30 + inpos] & 2147483647) >> (31 - 1) | (input[31 + inpos]) << 1;
 }
+
 fn fast_pack32(input: &[u32], inpos: usize, output: &mut [u32], outpos: usize) {
     output[outpos..outpos + 32].copy_from_slice(&input[inpos..inpos + 32]);
 }
