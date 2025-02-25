@@ -16,6 +16,7 @@ jobs:
       - uses: taiki-e/install-action@v2
         with: { tool: just }
       - uses: actions/checkout@v4
+        with: { submodules: recursive }
 #
 # Uncomment this and below once the crate has been published to crates.io
 #
@@ -39,6 +40,7 @@ jobs:
       - uses: taiki-e/install-action@v2
         with: { tool: just }
       - uses: actions/checkout@v4
+        with: { submodules: recursive }
       - uses: Swatinem/rust-cache@v2
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
       - name: Read crate metadata

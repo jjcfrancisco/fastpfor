@@ -21,3 +21,32 @@ pub enum Output {
     Byte(Vec<u8>),
     I32(Vec<i32>),
 }
+
+#[cfg(feature = "cpp")]
+#[cxx::bridge(namespace = "FastPForLib")]
+mod ffi {
+    unsafe extern "C++" {
+        include!("fastpfor_bridge.h");
+
+        type CODECFactory;
+        type IntegerCODEC;
+
+        fn new_codec_factory() -> UniquePtr<CODECFactory>;
+        fn codec_factory_get_from_name(
+            factory: &CODECFactory,
+            name: &str,
+        ) -> SharedPtr<IntegerCODEC>;
+    }
+}
+
+#[cfg(all(test, feature = "cpp"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_instantiation() {
+        let factory = ffi::new_codec_factory();
+        let codec = ffi::codec_factory_get_from_name(&factory, "FastPFor");
+        assert!(!codec.is_null());
+    }
+}

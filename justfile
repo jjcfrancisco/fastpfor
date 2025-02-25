@@ -34,8 +34,8 @@ check:
     cargo check --all-targets --workspace
 
 # Default build
-build:
-    cargo build --all-targets --workspace
+build *ARGS:
+    cargo build --all-targets --workspace {{ARGS}}
 
 # Run all tests
 test *ARGS: build
