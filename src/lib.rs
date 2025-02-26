@@ -9,10 +9,7 @@ mod integer_compression;
 //  - introduce a new feature-agnostic API that will forward to either
 //  - if both are enabled, forward to the more stable (ffi probably)
 #[cfg(feature = "cpp")]
-mod ffi_wrapper;
-
-#[cfg(feature = "cpp")]
-pub use ffi_wrapper::{Codec as FfiCodec, CodecFactory as FfiCodecFactory};
+pub mod bridge;
 
 pub use error::{FastPForError, FastPForResult};
 pub use integer_compression::bitpacking::{fast_pack, fast_unpack};
