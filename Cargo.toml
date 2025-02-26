@@ -10,9 +10,20 @@ keywords = ["fastpfor", "compression"]
 categories = ["compression"]
 rust-version = "1.83.0"
 
+[features]
+# We probably want to build without the C++ bindings by default.
+# Keeping it on for now to simplify development.
+default = ["cpp"]
+cpp = ["dep:cmake", "dep:cxx", "dep:cxx-build"]
+
 [dependencies]
 rand = "0.8.5"
 thiserror = "2.0.7"
+cxx = { version = "1.0.136", optional = true }
+
+[build-dependencies]
+cmake = { version = "0.1.52", optional = true }
+cxx-build = { version = "1.0.136", optional = true }
 
 [lints.rust]
 unused_assignments = "allow"
@@ -21,4 +32,4 @@ dead_code = "allow"
 [lints.clippy]
 unnecessary_cast = "allow"
 ptr_arg = "allow"
-needless_range_loop="allow"
+needless_range_loop = "allow"

@@ -3,6 +3,17 @@ mod cursor;
 mod error;
 mod integer_compression;
 
+// FIXME: need decide on the external API. Some ideas:
+//  - offer two sets of similar APIs - rust and cpp ffi
+//  - it will be possible to enable/disable each with a feature flag
+//  - introduce a new feature-agnostic API that will forward to either
+//  - if both are enabled, forward to the more stable (ffi probably)
+#[cfg(feature = "cpp")]
+mod ffi_wrapper;
+
+#[cfg(feature = "cpp")]
+pub use ffi_wrapper::{Codec as FfiCodec, CodecFactory as FfiCodecFactory};
+
 pub use error::{FastPForError, FastPForResult};
 pub use integer_compression::bitpacking::{fast_pack, fast_unpack};
 pub use integer_compression::codec::Codec;
