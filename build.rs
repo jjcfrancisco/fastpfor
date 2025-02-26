@@ -16,7 +16,6 @@ fn main() {
     cxx_build::bridge("src/cpp.rs")
         .include("cpp/headers")
         .include("src/bridge")
-        .file("src/bridge/fastpfor_bridge.cc")
         .std("c++14")
         .compile("fastpfor_bridge");
     println!("cargo:rerun-if-changed=src/ffi.rs");
