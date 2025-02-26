@@ -124,68 +124,72 @@ pub trait Codec64: CodecWrapper {
 }
 
 macro_rules! implement_codecs {
-    ($($name:ident $(+ $extra:ident)? => $ffi:ident , )*) => {
+    ($($name:ident $(@ $is_64:literal)? => $ffi:ident , )*) => {
         $(
-        pub struct $name(UniquePtr<ffi::IntegerCODEC>);
+            pub struct $name(UniquePtr<ffi::IntegerCODEC>);
 
-        impl $name {
-            pub fn new() -> Self {
-                Self(ffi::$ffi())
+            impl $name {
+                pub fn new() -> Self {
+                    Self(ffi::$ffi())
+                }
             }
-        }
 
-        impl Default for $name {
-            fn default() -> Self {
-                Self::new()
+            impl Default for $name {
+                fn default() -> Self {
+                    Self::new()
+                }
             }
-        }
 
-        impl CodecWrapper for $name {
-            fn codec(&self) -> &UniquePtr<ffi::IntegerCODEC> {
-                &self.0
+            impl CodecWrapper for $name {
+                fn codec(&self) -> &UniquePtr<ffi::IntegerCODEC> {
+                    &self.0
+                }
             }
-        }
 
-        impl Codec32 for $name {}
-        $(impl $extra for $name {})*
-    )*
-
-    #[cfg(test)]
-    mod codec_tests {
-        use super::*;
-
-        $(
-        #[test]
-        #[allow(non_snake_case)]
-        fn $name() {
-            roundtrip_32($name::new());
+            impl Codec32 for $name {}
             $(
-                // if $extra is Codec64, call roundtrip_64, but ignore the name
-                let _ = stringify!($extra);
-                roundtrip_64($name::new());
+                // hack to only expand this block if $is_64 is set
+                const _ : () = { let _ = $is_64; };
+                impl Codec64 for $name {}
             )*
-        }
         )*
 
-        fn roundtrip_32(codec: impl Codec32) {
-            let input = vec![1, 2, 3, 4, 5];
-            let mut output = vec![0; 10];
-            let encoded = codec.encode32(&input, &mut output).unwrap();
-            let mut decoded = vec![0; 10];
-            let decoded = codec.decode32(encoded, &mut decoded).unwrap();
-            assert_eq!(decoded, input);
-        }
+        #[cfg(test)]
+        mod codec_tests {
+            use super::*;
 
-        fn roundtrip_64(codec: impl Codec64) {
-            let input = vec![1, 2, 3, 4, 5];
-            let mut output = vec![0; 10];
-            let encoded = codec.encode64(&input, &mut output).unwrap();
+            $(
+                #[test]
+                #[allow(non_snake_case)]
+                fn $name() {
+                    roundtrip_32($name::new());
+                    $(
+                        // hack to only expand this block if $is_64 is set
+                        const _ : () = { let _ = $is_64; };
+                        roundtrip_64($name::new());
+                    )*
+                }
+            )*
 
-            let mut decoded = vec![0; 10];
-            let decoded = codec.decode64(encoded, &mut decoded).unwrap();
-            assert_eq!(decoded, input);
+            fn roundtrip_32(codec: impl Codec32) {
+                let input = vec![1, 2, 3, 4, 5];
+                let mut output = vec![0; 10];
+                let encoded = codec.encode32(&input, &mut output).unwrap();
+                let mut decoded = vec![0; 10];
+                let decoded = codec.decode32(encoded, &mut decoded).unwrap();
+                assert_eq!(decoded, input);
+            }
+
+            fn roundtrip_64(codec: impl Codec64) {
+                let input = vec![1, 2, 3, 4, 5];
+                let mut output = vec![0; 10];
+                let encoded = codec.encode64(&input, &mut output).unwrap();
+
+                let mut decoded = vec![0; 10];
+                let decoded = codec.decode64(encoded, &mut decoded).unwrap();
+                assert_eq!(decoded, input);
+            }
         }
-    }
     };
 }
 
@@ -193,8 +197,8 @@ implement_codecs! {
     BP32Codec => BP32_codec,
     CopyCodec => copy_codec,
     FastBinaryPacking8Codec => fastbinarypacking8_codec,
-    FastPFor128Codec + Codec64 => fastpfor128_codec,
-    FastPFor256Codec + Codec64 => fastpfor256_codec,
+    FastPFor128Codec @ 64 => fastpfor128_codec,
+    FastPFor256Codec @ 64 => fastpfor256_codec,
     FastBinaryPacking16Codec => fastbinarypacking16_codec,
     FastBinaryPacking32Codec => fastbinarypacking32_codec,
     MaskedVByteCodec => maskedvbyte_codec,
@@ -220,7 +224,7 @@ implement_codecs! {
     // SnappyCodec => snappy_codec,  // Conditional with #ifdef
     StreamVByteCodec => streamvbyte_codec,
     VByteCodec => vbyte_codec,
-    VarIntCodec + Codec64 => varint_codec,
+    VarIntCodec @ 64 => varint_codec,
     // VarIntG8iuCodec => varintg8iu_codec,  // Conditional with #ifdef
     VarIntGbCodec => varintgb_codec,
     // VsEncodingCodec => vsencoding_codec,  // This is leaking memory
