@@ -3,6 +3,16 @@ mod cursor;
 mod error;
 mod integer_compression;
 
+// FIXME: need decide on the external API. Some ideas:
+//  - offer two sets of similar APIs - rust and cpp ffi
+//  - it will be possible to enable/disable each with a feature flag
+//  - introduce a new feature-agnostic API that will forward to either
+//  - if both are enabled, forward to the more stable (ffi probably)
+#[cfg(feature = "cpp")]
+mod cpp;
+
+#[cfg(feature = "cpp")]
+pub use cpp::{Codec as FfiCodec, CodecFactory as FfiCodecFactory};
 pub use error::{FastPForError, FastPForResult};
 pub use integer_compression::bitpacking::{fast_pack, fast_unpack};
 pub use integer_compression::codec::Codec;
@@ -20,33 +30,4 @@ pub use integer_compression::variable_byte::VariableByte;
 pub enum Output {
     Byte(Vec<u8>),
     I32(Vec<i32>),
-}
-
-#[cfg(feature = "cpp")]
-#[cxx::bridge(namespace = "FastPForLib")]
-mod ffi {
-    unsafe extern "C++" {
-        include!("fastpfor_bridge.h");
-
-        type CODECFactory;
-        type IntegerCODEC;
-
-        fn new_codec_factory() -> UniquePtr<CODECFactory>;
-        fn codec_factory_get_from_name(
-            factory: &CODECFactory,
-            name: &str,
-        ) -> SharedPtr<IntegerCODEC>;
-    }
-}
-
-#[cfg(all(test, feature = "cpp"))]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_instantiation() {
-        let factory = ffi::new_codec_factory();
-        let codec = ffi::codec_factory_get_from_name(&factory, "FastPFor");
-        assert!(!codec.is_null());
-    }
 }
