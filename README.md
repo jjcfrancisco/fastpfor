@@ -6,10 +6,25 @@
 [![crates.io version](https://img.shields.io/crates/l/fastpfor.svg)](https://github.com/jjcfrancisco/fastpfor/blob/main/LICENSE-APACHE)
 [![CI build](https://github.com/jjcfrancisco/fastpfor/actions/workflows/ci.yml/badge.svg)](https://github.com/jjcfrancisco/fastpfor/actions)
 
-FastPFOR library written in Rust. Currently in development.
+FastPFOR library written in Rust.
+
+## Requirements
+
+# MacOS
+To build FastPFor on macOS, you'll need to install SIMDe. Since Homebrew installs packages in /opt/homebrew (for Apple Silicon), you'll also need to explicitly set the include paths.
+
+First, install SIMDe via Homebrew:
+```bash
+brew install simde
+```
+Then, ensure the compiler can find the required headers by setting:
+```bash
+export CXXFLAGS="-I/opt/homebrew/include"
+export CFLAGS="-I/opt/homebrew/include"
+```
 
 ## To do:
-- [ ] Rust wrapper for the [C++ library](https://github.com/fast-pack/FastPFor): try [`cxxbridge`](https://github.com/dtolnay/cxx) or [`bindgen`](https://crates.io/crates/bindgen)
+- [ x ] Rust wrapper for the [C++ library](https://github.com/fast-pack/FastPFor): try [`cxxbridge`](https://github.com/dtolnay/cxx) or [`bindgen`](https://crates.io/crates/bindgen)
 
 ## License
 
