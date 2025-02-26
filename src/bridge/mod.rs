@@ -1,32 +1,58 @@
-use cxx::{SharedPtr, UniquePtr};
+use cxx::UniquePtr;
 
 #[cxx::bridge(namespace = "FastPForLib")]
 mod ffi {
     unsafe extern "C++" {
         include!("fastpfor_bridge.h");
 
-        type CODECFactory;
         type IntegerCODEC;
 
-        fn new_codec_factory() -> UniquePtr<CODECFactory>;
-
-        fn codec_factory_all_names(factory: &CODECFactory) -> UniquePtr<CxxVector<CxxString>>;
-
-        fn codec_factory_get_from_name(
-            factory: &CODECFactory,
-            name: &str,
-        ) -> SharedPtr<IntegerCODEC>;
+        fn fastbinarypacking8_codec() -> UniquePtr<IntegerCODEC>;
+        fn fastbinarypacking16_codec() -> UniquePtr<IntegerCODEC>;
+        fn fastbinarypacking32_codec() -> UniquePtr<IntegerCODEC>;
+        fn BP32_codec() -> UniquePtr<IntegerCODEC>;
+        fn vsencoding_codec() -> UniquePtr<IntegerCODEC>;
+        fn fastpfor128_codec() -> UniquePtr<IntegerCODEC>;
+        fn fastpfor256_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdfastpfor128_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdfastpfor256_codec() -> UniquePtr<IntegerCODEC>;
+        fn simplepfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdsimplepfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn pfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdpfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn pfor2008_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdnewpfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn newpfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn optpfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdoptpfor_codec() -> UniquePtr<IntegerCODEC>;
+        fn varint_codec() -> UniquePtr<IntegerCODEC>;
+        fn vbyte_codec() -> UniquePtr<IntegerCODEC>;
+        fn maskedvbyte_codec() -> UniquePtr<IntegerCODEC>;
+        fn streamvbyte_codec() -> UniquePtr<IntegerCODEC>;
+        fn varintgb_codec() -> UniquePtr<IntegerCODEC>;
+        fn simple16_codec() -> UniquePtr<IntegerCODEC>;
+        fn simple9_codec() -> UniquePtr<IntegerCODEC>;
+        fn simple9_rle_codec() -> UniquePtr<IntegerCODEC>;
+        fn simple8b_codec() -> UniquePtr<IntegerCODEC>;
+        fn simple8b_rle_codec() -> UniquePtr<IntegerCODEC>;
+        // TODO: conditional with #ifdef, might support later
+        // fn varintg8iu_codec() -> UniquePtr<IntegerCODEC>;
+        // fn snappy_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdbinarypacking_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdgroupsimple_codec() -> UniquePtr<IntegerCODEC>;
+        fn simdgroupsimple_ringbuf_codec() -> UniquePtr<IntegerCODEC>;
+        fn copy_codec() -> UniquePtr<IntegerCODEC>;
 
         // Encode methods: returns number of output values
 
         fn codec_encode32(
-            codec: &SharedPtr<IntegerCODEC>,
+            codec: &UniquePtr<IntegerCODEC>,
             input: &[u32],
             output: &mut [u32],
         ) -> Result<usize>;
 
         fn codec_encode64(
-            codec: &SharedPtr<IntegerCODEC>,
+            codec: &UniquePtr<IntegerCODEC>,
             input: &[u64],
             output: &mut [u32],
         ) -> Result<usize>;
@@ -34,301 +60,214 @@ mod ffi {
         // Decode methods: returns consumed input values
 
         fn codec_decode32(
-            codec: &SharedPtr<IntegerCODEC>,
+            codec: &UniquePtr<IntegerCODEC>,
             input: &[u32],
             output: &mut [u32],
         ) -> Result<usize>;
 
         fn codec_decode64(
-            codec: &SharedPtr<IntegerCODEC>,
+            codec: &UniquePtr<IntegerCODEC>,
             input: &[u32],
             output: &mut [u64],
         ) -> Result<usize>;
     }
 }
 
-pub struct CodecFactory {
-    factory: UniquePtr<ffi::CODECFactory>,
+trait CodecWrapper {
+    fn codec(&self) -> &UniquePtr<ffi::IntegerCODEC>;
 }
 
-impl CodecFactory {
-    pub fn new() -> Option<Self> {
-        // TODO: is it ever possible for it to be null?
-        let factory = ffi::new_codec_factory();
-        if factory.is_null() {
-            None
-        } else {
-            Some(Self { factory })
-        }
-    }
-
-    /// Returns a list of all codec names.
-    pub fn all_names(&self) -> Vec<String> {
-        let names = ffi::codec_factory_all_names(&self.factory);
-        names.iter().map(|s| s.to_string()).collect()
-    }
-
-    pub fn get_codec(&self, name: &str) -> Option<Codec> {
-        let codec = ffi::codec_factory_get_from_name(&self.factory, name);
-        if codec.is_null() {
-            None
-        } else {
-            Some(Codec::new(codec))
-        }
-    }
-}
-
-pub struct Codec {
-    codec: SharedPtr<ffi::IntegerCODEC>,
-}
-
-impl Codec {
-    /// Creates a new `Codec` instance.
-    fn new(codec: SharedPtr<ffi::IntegerCODEC>) -> Self {
-        Self { codec }
-    }
-
+#[expect(private_bounds)]
+pub trait Codec32: CodecWrapper {
     /// Encode a slice of 32-bit integers.
-    pub fn encode32<'out>(
+    fn encode32<'out>(
         &self,
         input: &[u32],
         output: &'out mut [u32],
     ) -> Result<&'out mut [u32], cxx::Exception> {
-        let n = ffi::codec_encode32(&self.codec, input, output)?;
-        Ok(&mut output[..n])
-    }
-
-    /// Encode a slice of 64-bit integers.
-    pub fn encode64<'out>(
-        &self,
-        input: &[u64],
-        output: &'out mut [u32],
-    ) -> Result<&'out mut [u32], cxx::Exception> {
-        let n = ffi::codec_encode64(&self.codec, input, output)?;
+        let n = ffi::codec_encode32(self.codec(), input, output)?;
         Ok(&mut output[..n])
     }
 
     /// Decode a slice of 32-bit integers.
-    pub fn decode32<'out>(
+    fn decode32<'out>(
         &self,
         input: &[u32],
         output: &'out mut [u32],
     ) -> Result<&'out mut [u32], cxx::Exception> {
-        let n = ffi::codec_decode32(&self.codec, input, output)?;
-        Ok(&mut output[..n])
-    }
-
-    /// Decode a slice of 64-bit integers.
-    pub fn decode64<'out>(
-        &self,
-        input: &[u32],
-        output: &'out mut [u64],
-    ) -> Result<&'out mut [u64], cxx::Exception> {
-        let n = ffi::codec_decode64(&self.codec, input, output)?;
+        let n = ffi::codec_decode32(self.codec(), input, output)?;
         Ok(&mut output[..n])
     }
 }
 
-#[cfg(all(test, feature = "cpp"))]
+#[expect(private_bounds)]
+pub trait Codec64: CodecWrapper {
+    /// Encode a slice of 64-bit integers.
+    fn encode64<'out>(
+        &self,
+        input: &[u64],
+        output: &'out mut [u32],
+    ) -> Result<&'out mut [u32], cxx::Exception> {
+        let n = ffi::codec_encode64(self.codec(), input, output)?;
+        Ok(&mut output[..n])
+    }
+
+    /// Decode a slice of 64-bit integers.
+    fn decode64<'out>(
+        &self,
+        input: &[u32],
+        output: &'out mut [u64],
+    ) -> Result<&'out mut [u64], cxx::Exception> {
+        let n = ffi::codec_decode64(self.codec(), input, output)?;
+        Ok(&mut output[..n])
+    }
+}
+
+macro_rules! implement_codecs {
+    ($($name:ident $(+ $extra:ident)? => $ffi:ident , )*) => {
+        $(
+        pub struct $name(UniquePtr<ffi::IntegerCODEC>);
+
+        impl $name {
+            pub fn new() -> Self {
+                Self(ffi::$ffi())
+            }
+        }
+
+        impl Default for $name {
+            fn default() -> Self {
+                Self::new()
+            }
+        }
+
+        impl CodecWrapper for $name {
+            fn codec(&self) -> &UniquePtr<ffi::IntegerCODEC> {
+                &self.0
+            }
+        }
+
+        impl Codec32 for $name {}
+        $(impl $extra for $name {})*
+    )*
+
+    #[cfg(test)]
+    mod codec_tests {
+        use super::*;
+
+        $(
+        #[test]
+        #[allow(non_snake_case)]
+        fn $name() {
+            roundtrip_32($name::new());
+            $(
+                // if $extra is Codec64, call roundtrip_64, but ignore the name
+                let _ = stringify!($extra);
+                roundtrip_64($name::new());
+            )*
+        }
+        )*
+
+        fn roundtrip_32(codec: impl Codec32) {
+            let input = vec![1, 2, 3, 4, 5];
+            let mut output = vec![0; 10];
+            let encoded = codec.encode32(&input, &mut output).unwrap();
+            let mut decoded = vec![0; 10];
+            let decoded = codec.decode32(encoded, &mut decoded).unwrap();
+            assert_eq!(decoded, input);
+        }
+
+        fn roundtrip_64(codec: impl Codec64) {
+            let input = vec![1, 2, 3, 4, 5];
+            let mut output = vec![0; 10];
+            let encoded = codec.encode64(&input, &mut output).unwrap();
+
+            let mut decoded = vec![0; 10];
+            let decoded = codec.decode64(encoded, &mut decoded).unwrap();
+            assert_eq!(decoded, input);
+        }
+    }
+    };
+}
+
+implement_codecs! {
+    BP32Codec => BP32_codec,
+    CopyCodec => copy_codec,
+    FastBinaryPacking8Codec => fastbinarypacking8_codec,
+    FastPFor128Codec + Codec64 => fastpfor128_codec,
+    FastPFor256Codec + Codec64 => fastpfor256_codec,
+    FastBinaryPacking16Codec => fastbinarypacking16_codec,
+    FastBinaryPacking32Codec => fastbinarypacking32_codec,
+    MaskedVByteCodec => maskedvbyte_codec,
+    NewPForCodec => newpfor_codec,
+    OptPForCodec => optpfor_codec,
+    PFor2008Codec => pfor2008_codec,
+    PForCodec => pfor_codec,
+    SimdBinaryPackingCodec => simdbinarypacking_codec,
+    SimdFastPFor128Codec => simdfastpfor128_codec,
+    SimdFastPFor256Codec => simdfastpfor256_codec,
+    SimdGroupSimpleCodec => simdgroupsimple_codec,
+    SimdGroupSimpleRingBufCodec => simdgroupsimple_ringbuf_codec,
+    SimdNewPForCodec => simdnewpfor_codec,
+    SimdOptPForCodec => simdoptpfor_codec,
+    SimdPForCodec => simdpfor_codec,
+    SimdSimplePForCodec => simdsimplepfor_codec,
+    Simple16Codec => simple16_codec,
+    Simple8bCodec => simple8b_codec,
+    Simple8bRleCodec => simple8b_rle_codec,
+    Simple9Codec => simple9_codec,
+    Simple9RleCodec => simple9_rle_codec,
+    SimplePForCodec => simplepfor_codec,
+    // SnappyCodec => snappy_codec,  // Conditional with #ifdef
+    StreamVByteCodec => streamvbyte_codec,
+    VByteCodec => vbyte_codec,
+    VarIntCodec + Codec64 => varint_codec,
+    // VarIntG8iuCodec => varintg8iu_codec,  // Conditional with #ifdef
+    VarIntGbCodec => varintgb_codec,
+    // VsEncodingCodec => vsencoding_codec,  // This is leaking memory
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_bp32() {
-        full_test_32("BP32");
-        // full_test_64("BP32");
-    }
-    #[test]
-    fn test_copy() {
-        full_test_32("copy");
-        // full_test_64("copy");
-    }
-    #[test]
-    fn test_fastbinarypacking16() {
-        full_test_32("fastbinarypacking16");
-        // full_test_64("fastbinarypacking16");
-    }
-    #[test]
-    fn test_fastbinarypacking32() {
-        full_test_32("fastbinarypacking32");
-        // full_test_64("fastbinarypacking32");
-    }
-    #[test]
-    fn test_fastbinarypacking8() {
-        full_test_32("fastbinarypacking8");
-        // full_test_64("fastbinarypacking8");
-    }
-    #[test]
-    fn test_fastpfor128() {
-        full_test_32("fastpfor128");
-        full_test_64("fastpfor128");
-    }
-    #[test]
-    fn test_fastpfor256() {
-        full_test_32("fastpfor256");
-        full_test_64("fastpfor256");
-    }
-    #[test]
-    fn test_maskedvbyte() {
-        full_test_32("maskedvbyte");
-        // full_test_64("maskedvbyte");
-    }
-    #[test]
-    fn test_newpfor() {
-        full_test_32("newpfor");
-        // full_test_64("newpfor");
-    }
-    #[test]
-    fn test_optpfor() {
-        full_test_32("optpfor");
-        // full_test_64("optpfor");
-    }
-    #[test]
-    fn test_pfor() {
-        full_test_32("pfor");
-        // full_test_64("pfor");
-    }
-    #[test]
-    fn test_pfor2008() {
-        full_test_32("pfor2008");
-        // full_test_64("pfor2008");
-    }
-    #[test]
-    fn test_simdbinarypacking() {
-        full_test_32("simdbinarypacking");
-        // full_test_64("simdbinarypacking");
-    }
-    #[test]
-    fn test_simdfastpfor128() {
-        full_test_32("simdfastpfor128");
-        // full_test_64("simdfastpfor128");
-    }
-    #[test]
-    fn test_simdfastpfor256() {
-        full_test_32("simdfastpfor256");
-        // full_test_64("simdfastpfor256");
-    }
-    #[test]
-    fn test_simdgroupsimple() {
-        full_test_32("simdgroupsimple");
-        // full_test_64("simdgroupsimple");
-    }
-    #[test]
-    fn test_simdgroupsimple_ringbuf() {
-        full_test_32("simdgroupsimple_ringbuf");
-        // full_test_64("simdgroupsimple_ringbuf");
-    }
-    #[test]
-    fn test_simdnewpfor() {
-        full_test_32("simdnewpfor");
-        // full_test_64("simdnewpfor");
-    }
-    #[test]
-    fn test_simdoptpfor() {
-        full_test_32("simdoptpfor");
-        // full_test_64("simdoptpfor");
-    }
-    #[test]
-    fn test_simdpfor() {
-        full_test_32("simdpfor");
-        // full_test_64("simdpfor");
-    }
-    #[test]
-    fn test_simdsimplepfor() {
-        full_test_32("simdsimplepfor");
-        // full_test_64("simdsimplepfor");
-    }
-    #[test]
-    fn test_simple16() {
-        full_test_32("simple16");
-        // full_test_64("simple16");
-    }
-    #[test]
-    fn test_simple8b() {
-        full_test_32("simple8b");
-        // full_test_64("simple8b");
-    }
-    #[test]
-    fn test_simple8b_rle() {
-        full_test_32("simple8b_rle");
-        // full_test_64("simple8b_rle");
-    }
-    #[test]
-    fn test_simple9() {
-        full_test_32("simple9");
-        // full_test_64("simple9");
-    }
-    #[test]
-    fn test_simple9_rle() {
-        full_test_32("simple9_rle");
-        // full_test_64("simple9_rle");
-    }
-    #[test]
-    fn test_simplepfor() {
-        full_test_32("simplepfor");
-        // full_test_64("simplepfor");
-    }
-    #[test]
-    fn test_streamvbyte() {
-        full_test_32("streamvbyte");
-        // full_test_64("streamvbyte");
-    }
-    #[test]
-    fn test_varint() {
-        full_test_32("varint");
-        full_test_64("varint");
-    }
-    #[test]
-    fn test_varintg8iu() {
-        full_test_32("varintg8iu");
-        // full_test_64("varintg8iu");
-    }
-    #[test]
-    fn test_varintgb() {
-        full_test_32("varintgb");
-        // full_test_64("varintgb");
-    }
-    #[test]
-    fn test_vbyte() {
-        full_test_32("vbyte");
-        // full_test_64("vbyte");
-    }
+    // These duplicate the macro-generated tests, but we want to test that
+    // the macro expansion itself works correctly
 
-    // This leaks memory!
-    // #[test]
-    // fn test_vsencoding() {
-    //     full_test_32("vsencoding");
-    //     full_test_64("vsencoding");
-    // }
-
-    fn full_test_32(name: &str) {
-        let factory = CodecFactory::new().unwrap();
-        let codec = factory.get_codec(name).unwrap();
-        roundtrip_32(&codec);
-    }
-
-    fn full_test_64(name: &str) {
-        let factory = CodecFactory::new().unwrap();
-        let codec = factory.get_codec(name).unwrap();
-        roundtrip_64(&codec);
-    }
-
-    fn roundtrip_32(codec: &Codec) {
+    #[test]
+    fn test_32() {
+        let codec = FastPFor128Codec::new();
         let input = vec![1, 2, 3, 4, 5];
         let mut output = vec![0; 10];
+        let mut output2 = vec![0; 10];
         let encoded = codec.encode32(&input, &mut output).unwrap();
+        let encoded2 = codec.encode32(&input, &mut output2).unwrap();
+        assert_eq!(encoded, encoded2);
+
         let mut decoded = vec![0; 10];
+        let mut decoded2 = vec![0; 10];
         let decoded = codec.decode32(encoded, &mut decoded).unwrap();
+        let decoded2 = codec.decode32(encoded, &mut decoded2).unwrap();
+        assert_eq!(decoded, decoded2);
+
         assert_eq!(decoded, input);
     }
 
-    fn roundtrip_64(codec: &Codec) {
+    #[test]
+    fn test_64() {
+        let codec = FastPFor128Codec::new();
         let input = vec![1, 2, 3, 4, 5];
         let mut output = vec![0; 10];
+        let mut output2 = vec![0; 10];
         let encoded = codec.encode64(&input, &mut output).unwrap();
+        let encoded2 = codec.encode64(&input, &mut output2).unwrap();
+        assert_eq!(encoded, encoded2);
 
         let mut decoded = vec![0; 10];
+        let mut decoded2 = vec![0; 10];
         let decoded = codec.decode64(encoded, &mut decoded).unwrap();
+        let decoded2 = codec.decode64(encoded, &mut decoded2).unwrap();
+        assert_eq!(decoded, decoded2);
+
         assert_eq!(decoded, input);
     }
 }
