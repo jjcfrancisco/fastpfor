@@ -1,8 +1,8 @@
 use std::io::Cursor;
 
-use crate::cursor::IncrementCursor;
-use crate::integer_compression::{bitpacking, helpers};
-use crate::{bytebuffer, FastPForResult, Integer, Skippable};
+use crate::rust::cursor::IncrementCursor;
+use crate::rust::integer_compression::{bitpacking, helpers};
+use crate::rust::{bytebuffer, FastPForResult, Integer, Skippable};
 
 pub const BLOCK_SIZE_256: u32 = 256;
 pub const BLOCK_SIZE_128: u32 = 128;
@@ -196,7 +196,7 @@ impl FastPFOR {
             tmp_input_offset += self.block_size;
         }
         input_offset.set_position(tmp_input_offset as u64);
-        output[header_pos as usize] = tmp_output_offset - header_pos as u32;
+        output[header_pos] = tmp_output_offset - header_pos as u32;
         let byte_size = self.bytes_container.position();
         while (self.bytes_container.position() & 3) != 0 {
             self.bytes_container.put(0);
@@ -227,9 +227,9 @@ impl FastPFOR {
                 output[tmp_output_offset as usize] = self.data_pointers[k] as u32;
                 tmp_output_offset += 1;
                 let mut j = 0;
-                while j < self.data_pointers[k as usize] {
+                while j < self.data_pointers[k] {
                     bitpacking::fast_pack(
-                        &self.data_to_be_packed[k as usize],
+                        &self.data_to_be_packed[k],
                         j,
                         output,
                         tmp_output_offset as usize,
@@ -240,7 +240,7 @@ impl FastPFOR {
                 }
 
                 // Overflow adjustment
-                let overflow = j as u32 - self.data_pointers[k as usize] as u32;
+                let overflow = j as u32 - self.data_pointers[k] as u32;
                 tmp_output_offset -= (overflow * k as u32) / 32;
             }
         }

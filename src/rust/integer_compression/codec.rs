@@ -1,4 +1,4 @@
-use crate::{FastPFOR, JustCopy, VariableByte};
+use crate::rust::{FastPFOR, JustCopy, VariableByte};
 
 pub enum Codec {
     FastPFor(FastPFOR),

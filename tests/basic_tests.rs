@@ -1,6 +1,11 @@
+#![cfg(feature = "rust")]
+
 use std::io::Cursor;
 
-use fastpfor::Integer;
+use fastpfor::rust::{
+    fast_pack, fast_unpack, Composition, FastPFOR, Integer, VariableByte, BLOCK_SIZE_128,
+    DEFAULT_PAGE_SIZE,
+};
 use rand::Rng;
 
 mod common;
@@ -144,7 +149,7 @@ fn test_varying_length_two() {
 fn verity_bitpacking() {
     let n = 32;
     let times = 1000;
-    let mut r = rand::thread_rng();
+    let mut r = rand::rng();
     let mut data = vec![0; n];
     let mut compressed = vec![0; n];
     let mut uncompressed = vec![0; n];
@@ -152,11 +157,11 @@ fn verity_bitpacking() {
     for bit in 0..31 {
         for _ in 0..times {
             for k in 0..n {
-                data[k] = r.gen_range(0..(1 << bit));
+                data[k] = r.random_range(0..(1 << bit));
             }
 
-            fastpfor::fast_pack(&data, 0, &mut compressed, 0, bit);
-            fastpfor::fast_unpack(&compressed, 0, &mut uncompressed, 0, bit);
+            fast_pack(&data, 0, &mut compressed, 0, bit);
+            fast_unpack(&compressed, 0, &mut uncompressed, 0, bit);
 
             assert_eq!(uncompressed, data, "Mismatch for bit {}", bit);
         }
@@ -173,7 +178,7 @@ fn mask_array(array: &mut [u32], mask: u32) {
 fn verify_with_exceptions() {
     const N: usize = 32;
     const TIMES: usize = 1000;
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     let mut data = vec![0u32; N];
     let mut compressed = vec![0u32; N];
@@ -182,11 +187,11 @@ fn verify_with_exceptions() {
     for bit in 0..31 {
         for _ in 0..TIMES {
             for value in &mut data {
-                *value = rng.gen();
+                *value = rng.random();
             }
 
-            fastpfor::fast_pack(&data, 0, &mut compressed, 0, bit);
-            fastpfor::fast_unpack(&compressed, 0, &mut uncompressed, 0, bit);
+            fast_pack(&data, 0, &mut compressed, 0, bit);
+            fast_unpack(&compressed, 0, &mut uncompressed, 0, bit);
 
             mask_array(&mut data, (1 << bit) - 1);
 
@@ -218,14 +223,12 @@ fn test_spurious<C: Integer<u32>>(codec: &mut C) {
     }
 }
 
-use fastpfor::{BLOCK_SIZE_128, DEFAULT_PAGE_SIZE};
-
 #[test]
 fn spurious_out_test() {
-    let mut codec1 = fastpfor::FastPFOR::default();
+    let mut codec1 = FastPFOR::default();
     test_spurious(&mut codec1);
 
-    let mut codec2 = fastpfor::FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128);
+    let mut codec2 = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128);
     test_spurious(&mut codec2);
 }
 
@@ -263,22 +266,21 @@ fn test_zero_in_zero_out<C: Integer<u32>>(codec: &mut C) {
 
 #[test]
 fn zero_in_zero_out_test() {
-    let mut codec1 = fastpfor::FastPFOR::default();
+    let mut codec1 = FastPFOR::default();
     test_zero_in_zero_out(&mut codec1);
 
-    let mut codec2 = fastpfor::FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128);
+    let mut codec2 = FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128);
     test_zero_in_zero_out(&mut codec2);
 
-    let mut codec3 = fastpfor::VariableByte;
+    let mut codec3 = VariableByte;
     test_zero_in_zero_out(&mut codec3);
 
-    let mut codec4 =
-        fastpfor::Composition::new(fastpfor::FastPFOR::default(), fastpfor::VariableByte);
+    let mut codec4 = Composition::new(FastPFOR::default(), VariableByte);
     test_zero_in_zero_out(&mut codec4);
 
-    let mut codec5 = fastpfor::Composition::new(
-        fastpfor::FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128),
-        fastpfor::VariableByte,
+    let mut codec5 = Composition::new(
+        FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128),
+        VariableByte,
     );
     test_zero_in_zero_out(&mut codec5);
 }
@@ -288,8 +290,8 @@ fn test_increasing_sequence() {
     let n = 256;
     let data: Vec<u32> = (0..n).collect();
     let codecs = vec![
-        fastpfor::FastPFOR::default(),
-        fastpfor::FastPFOR::new(fastpfor::DEFAULT_PAGE_SIZE, fastpfor::BLOCK_SIZE_128),
+        FastPFOR::default(),
+        FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128),
     ];
     for mut codec in codecs {
         // Compress the data
@@ -311,7 +313,7 @@ fn test_increasing_sequence() {
         codec
             .uncompress(
                 &output_compress,
-                n as u32,
+                n,
                 &mut Cursor::new(0),
                 &mut decompressed,
                 &mut Cursor::new(0),
@@ -334,10 +336,10 @@ fn test_random_numbers() {
 
     let n = 65536;
     let mut rng = StdRng::seed_from_u64(123456);
-    let data: Vec<u32> = (0..n).map(|_| rng.gen()).collect(); // Generate random data
+    let data: Vec<u32> = (0..n).map(|_| rng.random()).collect(); // Generate random data
     let codecs = vec![
-        fastpfor::FastPFOR::default(),
-        fastpfor::FastPFOR::new(fastpfor::DEFAULT_PAGE_SIZE, fastpfor::BLOCK_SIZE_128),
+        FastPFOR::default(),
+        FastPFOR::new(DEFAULT_PAGE_SIZE, BLOCK_SIZE_128),
     ];
     for mut codec in codecs {
         // Compress the data
