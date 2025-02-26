@@ -13,7 +13,7 @@ fn main() {
     println!("cargo:rerun-if-changed=cpp");
 
     // Compile the bridge
-    cxx_build::bridge("src/cpp.rs")
+    cxx_build::bridge("src/ffi_wrapper.rs")
         .include("cpp/headers")
         .include("src/bridge")
         .std("c++14")
