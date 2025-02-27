@@ -9,7 +9,10 @@ fn main() {
 
         // Compile FastPFOR using CMake
         println!("cargo:rerun-if-changed=cpp");
-        let lib_path = cmake::Config::new("cpp").build().join("lib");
+        let lib_path = cmake::Config::new("cpp")
+            .define("WITH_TEST", "OFF")
+            .build()
+            .join("lib");
         let lib_path = lib_path.to_str().unwrap();
 
         // Compile the bridge
