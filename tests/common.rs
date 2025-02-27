@@ -1,6 +1,8 @@
+#![cfg(feature = "rust")]
+
 use std::io::Cursor;
 
-use fastpfor::{
+use fastpfor::rust::{
     Composition, FastPFOR, FastPForResult, Integer, JustCopy, VariableByte, BLOCK_SIZE_128,
     DEFAULT_PAGE_SIZE,
 };

@@ -1,7 +1,8 @@
-pub mod bytebuffer;
-mod cursor;
-mod error;
-mod integer_compression;
+#![allow(clippy::needless_doctest_main)]
+#![doc = include_str!("../README.md")]
+
+#[cfg(not(any(feature = "cpp", feature = "rust",)))]
+compile_error!("At least one of the features 'cpp' or 'rust' must be enabled");
 
 // FIXME: need decide on the external API. Some ideas:
 //  - offer two sets of similar APIs - rust and cpp ffi
@@ -9,23 +10,7 @@ mod integer_compression;
 //  - introduce a new feature-agnostic API that will forward to either
 //  - if both are enabled, forward to the more stable (ffi probably)
 #[cfg(feature = "cpp")]
-pub mod bridge;
+pub mod cpp;
 
-pub use error::{FastPForError, FastPForResult};
-pub use integer_compression::bitpacking::{fast_pack, fast_unpack};
-pub use integer_compression::codec::Codec;
-pub use integer_compression::composition::Composition;
-pub use integer_compression::differential::Delta;
-pub use integer_compression::fastpfor::{
-    FastPFOR, BLOCK_SIZE_128, BLOCK_SIZE_256, DEFAULT_PAGE_SIZE,
-};
-pub use integer_compression::integer_codec::Integer;
-pub use integer_compression::just_copy::JustCopy;
-pub use integer_compression::skippable_codec::Skippable;
-pub use integer_compression::variable_byte::VariableByte;
-
-#[derive(Debug, PartialEq)]
-pub enum Output {
-    Byte(Vec<u8>),
-    I32(Vec<i32>),
-}
+#[cfg(feature = "rust")]
+pub mod rust;

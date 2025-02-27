@@ -1302,7 +1302,7 @@ fn fast_pack32(input: &[u32], inpos: usize, output: &mut [u32], outpos: usize) {
 
 pub fn fast_unpack(input: &[u32], inpos: usize, output: &mut [u32], outpos: usize, bit: u8) {
     match bit {
-        0 => fast_unpack0(output, outpos as usize),
+        0 => fast_unpack0(output, outpos),
         1 => fast_unpack1(input, inpos, output, outpos),
         2 => fast_unpack2(input, inpos, output, outpos),
         3 => fast_unpack3(input, inpos, output, outpos),

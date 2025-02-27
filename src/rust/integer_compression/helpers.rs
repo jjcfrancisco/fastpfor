@@ -18,7 +18,7 @@ pub fn ceil_by(value: i32, factor: i32) -> i32 {
 
 #[expect(dead_code)]
 pub fn leading_bit_position(x: u32) -> i32 {
-    bitlen(x as u64) as i32
+    bitlen(x as u64)
 }
 
 fn clz(x: u64) -> u64 {

@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
-use crate::cursor::IncrementCursor;
-use crate::{Codec, FastPForResult, Integer};
+use crate::rust::cursor::IncrementCursor;
+use crate::rust::{Codec, FastPForResult, Integer};
 
 pub struct Composition {
     c1: Codec,
@@ -71,8 +71,8 @@ impl Integer<u32> for Composition {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::integer_compression::fastpfor::FastPFOR;
-    use crate::integer_compression::variable_byte::VariableByte;
+    use crate::rust::integer_compression::fastpfor::FastPFOR;
+    use crate::rust::integer_compression::variable_byte::VariableByte;
 
     #[test]
     fn test_composition() {

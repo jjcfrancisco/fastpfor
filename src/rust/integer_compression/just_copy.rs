@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use crate::{FastPForError, FastPForResult, Integer, Skippable};
+use crate::rust::{FastPForError, FastPForResult, Integer, Skippable};
 
 #[derive(Debug)]
 pub struct JustCopy;

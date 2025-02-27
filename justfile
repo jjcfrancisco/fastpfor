@@ -15,7 +15,7 @@ update:
 
 # Run cargo clippy
 clippy:
-    cargo clippy --all-targets --workspace -- -D warnings
+    cargo clippy --all-targets --workspace --all-features -- -D warnings
 
 # Test code formatting
 test-fmt:
@@ -27,27 +27,27 @@ fmt:
 
 # Build and open code documentation
 docs:
-    cargo doc --no-deps --open
+    cargo doc --no-deps --all-features --open
 
 # Quick compile
 check:
-    cargo check --all-targets --workspace
+    cargo check --all-targets --workspace --all-features
 
 # Default build
 build *ARGS:
-    cargo build --all-targets --workspace {{ARGS}}
+    cargo build --all-targets --workspace --all-features {{ARGS}}
 
 # Run all tests
 test *ARGS: build
-    cargo test --all-targets --workspace {{ARGS}}
+    cargo test --all-targets --workspace --all-features {{ARGS}}
 
 # Find the minimum supported Rust version. Install it with `cargo install cargo-msrv`
 msrv:
-    cargo msrv find --component rustfmt -- {{just_executable()}} ci-test-msrv
+    cargo msrv find --component rustfmt --all-features -- {{just_executable()}} ci-test-msrv
 
 # Find unused dependencies. Install it with `cargo install cargo-udeps`
 udeps:
-    cargo +nightly udeps --all-targets --workspace
+    cargo +nightly udeps --all-targets --workspace --all-features
 
 # Check semver compatibility with prior published version. Install it with `cargo install cargo-semver-checks`
 semver *ARGS:
@@ -72,22 +72,19 @@ test-publish:
 
 # Run tests, and accept their results. Requires insta to be installed.
 bless:
-    TRYBUILD=overwrite cargo insta test --accept
+    TRYBUILD=overwrite cargo insta test --accept --all-features
 
 # Test documentation
 test-doc:
-    cargo test --doc
-    cargo doc --no-deps
+    cargo test --doc --all-features
+    cargo doc --no-deps --all-features
 
 rust-info:
     rustc --version
     cargo --version
 
-# Run tests only relevant to the latest version
-ci-test-extras: test-doc
-
 # Run all tests as expected by CI
-ci-test: rust-info test-fmt clippy test build
+ci-test: rust-info test-fmt clippy test test-doc
 
 # Run minimal subset of tests to ensure compatibility with MSRV
 ci-test-msrv: rust-info test
